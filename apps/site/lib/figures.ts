@@ -8,7 +8,7 @@
 
 import { spell } from "./words";
 
-export type FigureId = "riffle" | "terrain" | "exploded" | "phosphor" | "slow" | "turntable" | "keyboard" | "elevator" | "phone" | "laptop" | "terminal" | "cabinet" | "branches" | "vault" | "lockers" | "padlock" | "patch" | "dish" | "router";
+export type FigureId = "riffle" | "terrain" | "exploded" | "phosphor" | "slow" | "turntable" | "keyboard" | "elevator" | "phone" | "laptop" | "terminal" | "cabinet" | "branches" | "vault" | "lockers" | "padlock" | "patch" | "dish" | "router" | "solar";
 
 export type FigureDoc = {
   id: FigureId;
@@ -155,9 +155,16 @@ export const FIGURES: FigureDoc[] = [
     stronger: "The lean spreads further.",
     parameter: { name: "spread", unit: "antennas" },
   },
+  {
+    id: "solar",
+    name: "Solar",
+    summary: "Twelve solar panels on poles. The panels near the pointer turn to face it, the nearest most.",
+    stronger: "The sun reaches more panels.",
+    parameter: { name: "reach", unit: "panels" },
+  },
 ];
 
-/** How many figures the package has, as the prose writes it: "nineteen". */
+/** How many figures the package has, as the prose writes it: "twenty". */
 export const COUNT = spell(FIGURES.length);
 
 /** Each figure's number at intensity 0, 0.5 and 1: a copy of the package's table. */
@@ -181,6 +188,7 @@ export const INTENSITY: Record<FigureId, readonly [number, number, number]> = {
   patch: [1, 2.5, 5],
   dish: [30, 50, 70],
   router: [0.5, 1.5, 3],
+  solar: [1, 1.8, 3],
 };
 
 /** A number with its unit, as the docs' table and /llms.txt write it: "40 ms", "0.2× normal speed". */

@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const SHELVES = ["Interfaces", "Data", "Machines", "Devices", "Coding", "Security", "Connectivity"];
+const SHELVES = ["Interfaces", "Data", "Machines", "Devices", "Coding", "Security", "Connectivity", "Energy"];
 
 function watch(page: Page): string[] {
   const noise: string[] = [];
@@ -16,16 +16,16 @@ function watch(page: Page): string[] {
 const tiles = (page: Page) => page.locator(".fig-tile");
 const shelf = (page: Page, name: string) => page.locator(".shelves .shelf", { hasText: name });
 
-test("/figures prerenders nineteen empty boxes among nineteen tiles, then draws them with a clean console", async ({ page, request }) => {
+test("/figures prerenders twenty empty boxes among twenty tiles, then draws them with a clean console", async ({ page, request }) => {
   const html = await (await request.get("/figures")).text();
-  expect(html.match(/<div style="aspect-ratio:5 \/ 4"><\/div>/g)).toHaveLength(19);
-  expect(html.match(/class="fig-tile"/g)).toHaveLength(19);
+  expect(html.match(/<div style="aspect-ratio:5 \/ 4"><\/div>/g)).toHaveLength(20);
+  expect(html.match(/class="fig-tile"/g)).toHaveLength(20);
   expect(html).not.toContain("data-planned");
 
   const noise = watch(page);
   await page.goto("/figures");
-  await expect(tiles(page)).toHaveCount(19);
-  await expect(page.locator(".fig-tile [data-hairline] > svg")).toHaveCount(19);
+  await expect(tiles(page)).toHaveCount(20);
+  await expect(page.locator(".fig-tile [data-hairline] > svg")).toHaveCount(20);
   await expect(page.locator(".fig-tile .fig-ghost, .fig-tile[data-planned]")).toHaveCount(0);
   await expect(page.locator("h1")).toHaveText("Every figure, by what it draws.");
   await expect(page.locator(".doc-section h2")).toHaveText(SHELVES);
@@ -36,7 +36,7 @@ test("/figures prerenders nineteen empty boxes among nineteen tiles, then draws 
 test("the shelves filter: All is pressed at first, a shelf shows only itself and names itself in the address", async ({ page }) => {
   await page.goto("/figures");
   await expect(shelf(page, "All")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".shelves .shelf-n")).toHaveText(["19", "1", "3", "3", "3", "3", "3", "3"]);
+  await expect(page.locator(".shelves .shelf-n")).toHaveText(["20", "1", "3", "3", "3", "3", "3", "3", "1"]);
 
   await shelf(page, "Machines").click();
   await expect(shelf(page, "Machines")).toHaveAttribute("aria-pressed", "true");
@@ -53,7 +53,7 @@ test("the shelves filter: All is pressed at first, a shelf shows only itself and
   })).toBeLessThan(1);
 
   await shelf(page, "All").click();
-  await expect(tiles(page)).toHaveCount(19);
+  await expect(tiles(page)).toHaveCount(20);
   expect(new URL(page.url()).hash).toBe("");
 });
 
@@ -186,7 +186,7 @@ test("on a phone the shelves are a strip under the top bar, and nothing scrolls 
     await page.setViewportSize({ width, height: 800 });
     await page.goto("/figures");
     await expect(page.locator(".shelves")).toBeHidden();
-    await expect(page.locator(".figs-pill")).toHaveCount(8);
+    await expect(page.locator(".figs-pill")).toHaveCount(9);
     expect(await page.evaluate(() => document.documentElement.scrollWidth), `${width}`).toBeLessThanOrEqual(width);
     // the top bar's links stay inside it
     const right = await page.evaluate(() => document.querySelector(".topbar nav")!.getBoundingClientRect().right);

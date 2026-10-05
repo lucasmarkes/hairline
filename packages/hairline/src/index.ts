@@ -14,13 +14,14 @@ import { mount as phosphorEngine } from "./figures/phosphor";
 import { mount as riffleEngine } from "./figures/riffle";
 import { mount as routerEngine } from "./figures/router";
 import { mount as slowEngine } from "./figures/slow";
+import { mount as solarEngine } from "./figures/solar";
 import { mount as terminalEngine } from "./figures/terminal";
 import { mount as terrainEngine } from "./figures/terrain";
 import { mount as turntableEngine } from "./figures/turntable";
 import { mount as vaultEngine } from "./figures/vault";
 
 /**
- * @lucasmarkes/hairline — nineteen isometric line figures that answer the pointer.
+ * @lucasmarkes/hairline — twenty isometric line figures that answer the pointer.
  *
  * One function per figure. Each takes an element and the same options, draws
  * into the element, and returns `{ update, destroy }`. Each function names
@@ -217,5 +218,15 @@ export function router(el: HTMLElement, options?: HairlineOptions): Figure {
     label: "A wifi router whose antennas lean toward the pointer, the nearest the most and the others less the further away.",
     rest: "rest",
     engine: routerEngine,
+  }, el, options);
+}
+
+/** A field of twelve solar panels on poles that turn to face the pointer, the nearest the most and the others less the further away. `intensity` lets the sun reach more panels. */
+export function solar(el: HTMLElement, options?: HairlineOptions): Figure {
+  return create({
+    id: "solar",
+    label: "A field of twelve solar panels on poles that turn to face the pointer, the nearest the most and the others less the further away.",
+    rest: "rest",
+    engine: solarEngine,
   }, el, options);
 }

@@ -1,12 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { Branches, Cabinet, Dish, Elevator, Exploded, Keyboard, Laptop, Lockers, Padlock, Patch, Phone, Phosphor, Riffle, Router, Slow, Terminal, Terrain, Turntable, Vault } from "@lucasmarkes/hairline/react";
+import { Branches, Cabinet, Dish, Elevator, Exploded, Keyboard, Laptop, Lockers, Padlock, Patch, Phone, Phosphor, Riffle, Router, Slow, Solar, Terminal, Terrain, Turntable, Vault } from "@lucasmarkes/hairline/react";
 import { ENTRIES, SHELVES, type Entry, type Shelf, type ShelfId } from "@/lib/catalogue";
 import { LINKS, type FigureId } from "@/lib/figures";
 import { Tabs, type Tab } from "./tabs";
 
-const COMPONENTS: Record<FigureId, typeof Riffle> = { riffle: Riffle, terrain: Terrain, exploded: Exploded, phosphor: Phosphor, slow: Slow, turntable: Turntable, keyboard: Keyboard, elevator: Elevator, phone: Phone, laptop: Laptop, terminal: Terminal, cabinet: Cabinet, branches: Branches, vault: Vault, lockers: Lockers, padlock: Padlock, patch: Patch, dish: Dish, router: Router };
+const COMPONENTS: Record<FigureId, typeof Riffle> = { riffle: Riffle, terrain: Terrain, exploded: Exploded, phosphor: Phosphor, slow: Slow, turntable: Turntable, keyboard: Keyboard, elevator: Elevator, phone: Phone, laptop: Laptop, terminal: Terminal, cabinet: Cabinet, branches: Branches, vault: Vault, lockers: Lockers, padlock: Padlock, patch: Patch, dish: Dish, router: Router, solar: Solar };
 
 type Filter = "all" | ShelfId;
 
@@ -69,6 +69,13 @@ const ICONS: Record<Filter, ReactNode> = {
       <circle cx="4" cy="11.5" r="2.25" fill="currentColor" fillOpacity=".2" />
       <circle cx="12" cy="4.5" r="2.25" fill="currentColor" fillOpacity=".2" />
       <path d="m5.6 10 4.8-4.1" />
+    </>,
+  ),
+  energy: svg(
+    <>
+      <rect x="2.75" y="6.25" width="10.5" height="5.5" rx="1.25" fill="currentColor" fillOpacity=".2" transform="rotate(-12 8 9)" />
+      <path d="M8 12v2.25M5.5 14.25h5" />
+      <circle cx="12.5" cy="2.75" r="1" />
     </>,
   ),
 };

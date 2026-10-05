@@ -4,6 +4,14 @@ Every release of `@lucasmarkes/hairline`. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [semver](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `solar` and `Solar`: twelve solar panels on poles. The panels near the
+  pointer turn to face it, the nearest most, and the rest go back to the
+  morning sun. A stronger `intensity` lets the sun reach more panels.
+
 ## 0.2.0 - 2026-10-03
 
 ### Added
