@@ -29,7 +29,7 @@ describe("parameter", () => {
 
   it.each(IDS)("moves %s one way only as intensity rises", (id) => {
     const values = Array.from({ length: 21 }, (_, k) => parameter(id, k / 20));
-    const falls = id === "slow";
+    const falls = id === "slow" || id === "turbine";
     for (let k = 1; k < values.length; k++) {
       if (falls) expect(values[k]).toBeLessThan(values[k - 1]);
       else expect(values[k]).toBeGreaterThan(values[k - 1]);

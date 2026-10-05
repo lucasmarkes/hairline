@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Branches, Cabinet, Dish, Elevator, Exploded, Keyboard, Laptop, Lockers, Padlock, Patch, Phone, Phosphor, Riffle, Router, Slow, Terminal, Terrain, Turntable, Vault } from "@lucasmarkes/hairline/react";
+import { Branches, Cabinet, Dish, Elevator, Exploded, Keyboard, Laptop, Lockers, Padlock, Patch, Phone, Phosphor, Riffle, Router, Slow, Solar, Terminal, Terrain, Turbine, Turntable, Vault } from "@lucasmarkes/hairline/react";
 import { Anchor } from "@/components/anchor";
 import { CodeBlock } from "@/components/code-block";
 import { Install } from "@/components/install";
@@ -8,7 +8,7 @@ import { SECTIONS } from "@/lib/docs";
 import { COUNT, FIGURES, INTENSITY, OPTIONS, THEME, measure } from "@/lib/figures";
 import { PACKAGE } from "@/lib/snippets";
 
-const SMALL = { riffle: Riffle, terrain: Terrain, exploded: Exploded, phosphor: Phosphor, slow: Slow, turntable: Turntable, keyboard: Keyboard, elevator: Elevator, phone: Phone, laptop: Laptop, terminal: Terminal, cabinet: Cabinet, branches: Branches, vault: Vault, lockers: Lockers, padlock: Padlock, patch: Patch, dish: Dish, router: Router };
+const SMALL = { riffle: Riffle, terrain: Terrain, exploded: Exploded, phosphor: Phosphor, slow: Slow, turntable: Turntable, keyboard: Keyboard, elevator: Elevator, phone: Phone, laptop: Laptop, terminal: Terminal, cabinet: Cabinet, branches: Branches, vault: Vault, lockers: Lockers, padlock: Padlock, patch: Patch, dish: Dish, router: Router, solar: Solar, turbine: Turbine };
 
 /** A section takes its title from SECTIONS, the list the rail reads, so the two always agree. Its link copies from beside its title. */
 function Section({ id, children }: { id: string; children: ReactNode }) {
@@ -146,7 +146,7 @@ export function Reference({ css }: { css: string }) {
         <ul className="doc-list">
           <li>Each figure is an image with a description; <C>label</C> (or <C>aria-label</C> in React) replaces it.</li>
           <li>Riffle is a focusable group: the arrow keys walk its cards and a live region reads out the card&rsquo;s number.</li>
-          <li>Under <C>prefers-reduced-motion</C>, Phosphor and Slow hold still, and every figure still answers the pointer.</li>
+          <li>Under <C>prefers-reduced-motion</C>, Phosphor, Slow and Turbine hold still, and every figure still answers the pointer.</li>
         </ul>
       </Section>
     </>

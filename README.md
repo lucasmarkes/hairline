@@ -1,6 +1,6 @@
 # hairline
 
-Nineteen isometric line figures that answer the pointer. For React and for anything with a DOM.
+Twenty-one isometric line figures that answer the pointer. For React and for anything with a DOM.
 
 [![npm](https://img.shields.io/npm/v/@lucasmarkes/hairline)](https://www.npmjs.com/package/@lucasmarkes/hairline)
 [![CI](https://github.com/lucasmarkes/hairline/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasmarkes/hairline/actions/workflows/ci.yml)
@@ -74,6 +74,8 @@ A figure draws into the element you give it, at the element's width and a 5:4 as
 | `patch` | `Patch` | A patch panel of twenty-four ports with cables. The cable under the pointer lifts and its neighbours lean away. | The lean spreads further. |
 | `dish` | `Dish` | A parabolic dish on a two-axis gimbal. The pointer aims the dish; it follows on a spring. | The dish swings further. |
 | `router` | `Router` | A router with its antennas up. Each antenna leans toward the pointer, the nearest most. | The lean spreads further. |
+| `solar` | `Solar` | Twelve solar panels on poles. The panels near the pointer turn to face it, the nearest most. | The sun reaches more panels. |
+| `turbine` | `Turbine` | A wind turbine whose rotor always turns. Hovering slows it without stopping it, so a blade can be followed. | The rotor slows down more. |
 
 ## Options
 
@@ -110,14 +112,14 @@ The figure's styles have no specificity, so any rule of yours wins without `!imp
 ## Notes
 
 - **Accessibility.** A figure is an image with a description you can replace with `label`. Riffle is the exception: it is a focusable group, the arrow keys walk its cards, and a live region reads the card out.
-- **Reduced motion.** With `prefers-reduced-motion`, the figures that play on their own (Phosphor and Slow) hold still, and every figure still answers the pointer.
+- **Reduced motion.** With `prefers-reduced-motion`, the figures that play on their own (Phosphor, Slow and Turbine) hold still, and every figure still answers the pointer.
 - **Performance.** Every figure on a page shares one `requestAnimationFrame` loop. A figure off screen, or at rest, does no work, and the loop stops when nothing is moving.
 - **Server rendering.** On the server a component is an empty box with a 5:4 aspect ratio, so nothing shifts when it draws. The functions need a DOM: call them in an effect, in `onMount`, or in a script after the element.
 - **Shadow DOM.** A figure mounted inside a shadow root styles itself there.
 
 ## Make your own
 
-`hairline-create` is a skill for coding agents. Give it an idea and it draws a new figure to Hairline's ten rules, on the same engine as the nineteen above, as one HTML file.
+`hairline-create` is a skill for coding agents. Give it an idea and it draws a new figure to Hairline's ten rules, on the same engine as the twenty-one above, as one HTML file.
 
 ```sh
 npx skills add lucasmarkes/hairline

@@ -93,3 +93,11 @@ export function Dish({ style, ...props }: ComponentProps<typeof Hairline.Dish>) 
 export function Router({ style, ...props }: ComponentProps<typeof Hairline.Router>) {
   return <Hairline.Router style={{ ...tokens, ...style }} {...props} />;
 }
+
+export function Solar({ style, ...props }: ComponentProps<typeof Hairline.Solar>) {
+  return <Hairline.Solar style={{ ...tokens, ...style }} {...props} />;
+}
+
+export function Turbine({ style, ...props }: ComponentProps<typeof Hairline.Turbine>) {
+  return <Hairline.Turbine style={{ ...tokens, ...style }} {...props} />;
+}

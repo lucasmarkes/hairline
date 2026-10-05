@@ -55,7 +55,7 @@ export function llms(base: string): string {
     "Six CSS custom properties, set on the figure or on any ancestor. Without them a figure is light, or dark when an ancestor has class `dark` or `data-theme=\"dark\"`, or when the page's `color-scheme` is dark.",
     "", THEME.map((t) => `- \`${t.property}\` (light: ${t.light}): ${t.role}`).join("\n"),
     "", "## Accessibility", "",
-    "A figure is an image with a description you can replace with `label`. Riffle is a focusable group: the arrow keys walk its cards and a live region reads out the card's number. Under prefers-reduced-motion, Phosphor and Slow hold still, and every figure still answers the pointer.",
+    "A figure is an image with a description you can replace with `label`. Riffle is a focusable group: the arrow keys walk its cards and a live region reads out the card's number. Under prefers-reduced-motion, Phosphor, Slow and Turbine hold still, and every figure still answers the pointer.",
     "", "## Make your own", "",
     SUMMARY,
     "", fence("sh", INSTALL),

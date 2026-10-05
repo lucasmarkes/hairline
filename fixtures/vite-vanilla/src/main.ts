@@ -1,6 +1,6 @@
-import { branches, cabinet, dish, elevator, exploded, keyboard, laptop, lockers, padlock, patch, phone, phosphor, riffle, router, slow, terminal, terrain, turntable, vault, type Figure } from "@lucasmarkes/hairline";
+import { branches, cabinet, dish, elevator, exploded, keyboard, laptop, lockers, padlock, patch, phone, phosphor, riffle, router, slow, solar, terminal, terrain, turbine, turntable, vault, type Figure } from "@lucasmarkes/hairline";
 
-/** No framework: nineteen elements, nineteen calls. */
+/** No framework: twenty-one elements, twenty-one calls. */
 const el = (id: string) => document.getElementById(id)!;
 const read = el("read");
 
@@ -26,5 +26,7 @@ padlock(el("padlock"));
 patch(el("patch"));
 dish(el("dish"));
 router(el("router"));
+solar(el("solar"));
+turbine(el("turbine"));
 
 cards.update({ intensity: 0.8 });

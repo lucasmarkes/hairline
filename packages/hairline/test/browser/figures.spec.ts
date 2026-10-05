@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 /** The figures in a real browser: input, focus, reduced motion, shadow roots, a clean console. */
 
-const IDS = ["riffle", "terrain", "exploded", "phosphor", "slow", "turntable", "keyboard", "elevator", "phone", "laptop", "terminal", "cabinet", "branches", "vault", "lockers", "padlock", "patch", "dish", "router"] as const;
+const IDS = ["riffle", "terrain", "exploded", "phosphor", "slow", "turntable", "keyboard", "elevator", "phone", "laptop", "terminal", "cabinet", "branches", "vault", "lockers", "padlock", "patch", "dish", "router", "solar", "turbine"] as const;
 type Id = (typeof IDS)[number];
 
 const mount = (page: Page, id: Id, options: Record<string, unknown> = {}) =>
@@ -80,7 +80,7 @@ test("under reduced motion the loops hold still", async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: "reduce" });
   const page = await context.newPage();
   await page.goto("/");
-  for (const id of ["phosphor", "slow"] as const) {
+  for (const id of ["phosphor", "slow", "turbine"] as const) {
     await mount(page, id);
     await page.waitForTimeout(700);
     const a = await page.locator("#host > svg").innerHTML();

@@ -10,7 +10,7 @@ export { spell };
  * with no component behind it yet.
  */
 
-export type ShelfId = "interfaces" | "data" | "machines" | "devices" | "coding" | "security" | "connectivity";
+export type ShelfId = "interfaces" | "data" | "machines" | "devices" | "coding" | "security" | "connectivity" | "energy";
 
 export type Entry = { id: string; name: string; summary: string; stronger: string } & ({ drawn: true; id: FigureId } | { drawn: false });
 
@@ -70,11 +70,17 @@ export const SHELVES: Shelf[] = [
       drawn("router"),
     ],
   },
+  {
+    id: "energy", title: "Energy", color: "#84cc16", figures: [
+      drawn("solar"),
+      drawn("turbine"),
+    ],
+  },
 ];
 
 export const ENTRIES: Entry[] = SHELVES.flatMap((s) => s.figures);
 
-/** "Seven shelves, nineteen figures" */
+/** "Eight shelves, twenty-one figures" */
 export function tally(): string {
   return `${cap(spell(SHELVES.length))} shelves, ${spell(ENTRIES.length)} figures`;
 }

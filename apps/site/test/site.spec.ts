@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-const IDS = ["riffle", "terrain", "exploded", "phosphor", "slow", "turntable", "keyboard", "elevator", "phone", "laptop", "terminal", "cabinet", "branches", "vault", "lockers", "padlock", "patch", "dish", "router"];
+const IDS = ["riffle", "terrain", "exploded", "phosphor", "slow", "turntable", "keyboard", "elevator", "phone", "laptop", "terminal", "cabinet", "branches", "vault", "lockers", "padlock", "patch", "dish", "router", "solar", "turbine"];
 const MANAGERS = [
   ["npm", "npm i @lucasmarkes/hairline"],
   ["pnpm", "pnpm add @lucasmarkes/hairline"],
@@ -312,9 +312,9 @@ const BASE = "http://localhost:3000";
 
 test("a pasted link shows the page it leads to: each page's card has its own title, text and address", async ({ request }) => {
   const CARDS = [
-    ["/", "hairline", /^Nineteen isometric line figures/],
-    ["/figures", "Figures", /^Seven shelves, nineteen figures, grouped by what they draw/],
-    ["/docs", "Docs", /^Nineteen isometric line figures/],
+    ["/", "hairline", /^Twenty-one isometric line figures/],
+    ["/figures", "Figures", /^Eight shelves, twenty-one figures, grouped by what they draw/],
+    ["/docs", "Docs", /^Twenty-one isometric line figures/],
     ["/skill", "Make your own figure", /^hairline-create is a skill/],
     ["/inspo", "How Hairline was made", /^A long brief/],
   ] as const;

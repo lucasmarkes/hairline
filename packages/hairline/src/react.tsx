@@ -2,10 +2,10 @@ import {
   forwardRef, useCallback, useEffect, useLayoutEffect, useRef,
   type ComponentPropsWithoutRef, type ForwardRefExoticComponent, type RefAttributes,
 } from "react";
-import { branches, cabinet, dish, elevator, exploded, keyboard, laptop, lockers, padlock, patch, phone, phosphor, riffle, router, slow, terminal, terrain, turntable, vault, type Figure, type HairlineOptions } from "./index";
+import { branches, cabinet, dish, elevator, exploded, keyboard, laptop, lockers, padlock, patch, phone, phosphor, riffle, router, slow, solar, terminal, terrain, turbine, turntable, vault, type Figure, type HairlineOptions } from "./index";
 
 /**
- * @lucasmarkes/hairline/react — the nineteen figures as components.
+ * @lucasmarkes/hairline/react — the twenty-one figures as components.
  *
  * A component renders one empty `<div>` and mounts the figure on it in a
  * layout effect, so on the server the box is there and the drawing is not.
@@ -91,3 +91,7 @@ export const Patch = make("Patch", patch);
 export const Dish = make("Dish", dish);
 /** A wifi router whose antennas lean toward the pointer, the nearest the most and the others less the further away. `intensity` spreads the lean over more antennas. */
 export const Router = make("Router", router);
+/** A field of twelve solar panels on poles that turn to face the pointer, the nearest the most and the others less the further away. `intensity` lets the sun reach more panels. */
+export const Solar = make("Solar", solar);
+/** A wind turbine that always turns. Hovering slows the rotor without stopping it, so a blade can be followed round. `intensity` slows it more. */
+export const Turbine = make("Turbine", turbine);
