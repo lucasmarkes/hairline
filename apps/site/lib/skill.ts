@@ -19,13 +19,13 @@ export type Example = { idea: string; file: string; sha256: string; followUp?: s
 
 /** What was typed after the command, and the page the skill wrote for it. The pages are never edited. */
 export const EXAMPLES: Example[] = [
-  { idea: "a sales funnel", file: "hairline-funnel.html", sha256: "0cc23d6ae3e40a7d424e56b25f5c318760e8ae5abe82a0cafb7631c86391d982" },
-  { idea: "a rate limiter", file: "hairline-clearance.html", sha256: "bcad4048389d9049880263ad113900cc6728f6bc5770880c7524a8836728bdce" },
-  { idea: "git branches", file: "hairline-sidings.html", sha256: "de5ad4411e1b7a97049c6b74e9f4ffdb8a9dfc32b0c5367dddd585cd7dac5bf7", followUp: "The rails almost disappear and the trains read as loose blocks. Make it read as a railway at a glance." },
-  { idea: "weather over a city", file: "hairline-storm.html", sha256: "af8e3e85414d2a38421cf98b858ce1a4c1f9138cc5ba7bbf6c5b42b0205c0e60", followUp: "The cloud looks like a stack of cylinders. Make it read as a cloud at a glance." },
-  { idea: "an empty state for \"No deployments yet\", from Vercel's mark: the triangle as an upright slab hovering over a pad with its slot marked dim; the nearer the pointer, the lower it settles, until it seats. Name it vercel.", file: "hairline-vercel.html", sha256: "66f4577ec763f5ea45983cdff12ec5fdd6a6d1be7ff427023a8d35271af43d94" },
-  { idea: "an empty state for \"No agents connected\", from Mastra's mark: the spheres of the M joined by necks on a board, the lone sphere standing apart; the pointer draws it toward the others, a neck forms, stretches and lets go. Name it mastra.", file: "hairline-mastra.html", sha256: "6a7c5d3f4942428b4ce6ce02c6667eb80503ea58bd501891e3b5f9f7eeb02f5a" },
-  { idea: "an empty state for \"No pages inside\", from Notion's mark: the cube as a box with a lid, the N a relief on its front face; the pointer's height opens the lid on a spring, and the box is empty. Name it notion.", file: "hairline-notion.html", sha256: "0027a7ea3a463638d60e7d0cc3cd94402862d68895a4c9b5e036a1a3c2163583" },
+  { idea: "a sales funnel", file: "hairline-funnel.html", sha256: "37c9cab4dff1434b75cd4ebad0e91a1861f381a5c4e88200754b6d988989bc54" },
+  { idea: "a rate limiter", file: "hairline-clearance.html", sha256: "566d0c61c49080f64984bc6321f1c6f70d4a67085104f99a9cc2ab4146a38605" },
+  { idea: "git branches", file: "hairline-sidings.html", sha256: "58f8e7136f25fd10f7ca1b1f775d6d76e7b7f7dccd34b7efebb9b672707c284a", followUp: "The rails almost disappear and the trains read as loose blocks. Make it read as a railway at a glance." },
+  { idea: "weather over a city", file: "hairline-storm.html", sha256: "3ce151e6eb753320379a60688db92d13d8b312cf729998721366761c9757b660", followUp: "The cloud looks like a stack of cylinders. Make it read as a cloud at a glance." },
+  { idea: "an empty state for \"No deployments yet\", from Vercel's mark: the triangle as an upright slab hovering over a pad with its slot marked dim; the nearer the pointer, the lower it settles, until it seats. Name it vercel.", file: "hairline-vercel.html", sha256: "713dd36620c7361c8ec545d258b9a06f0608220ee8fb56ea87cac7e0ee0b8e40" },
+  { idea: "an empty state for \"No agents connected\", from Mastra's mark: the spheres of the M joined by necks on a board, the lone sphere standing apart; the pointer draws it toward the others, a neck forms, stretches and lets go. Name it mastra.", file: "hairline-mastra.html", sha256: "85c6cfe0981cb40ea39d410803f116d98e6765f3776e1fd3f911b124328aceb4" },
+  { idea: "an empty state for \"No pages inside\", from Notion's mark: the cube as a box with a lid, the N a relief on its front face; the pointer's height opens the lid on a spring, and the box is empty. Name it notion.", file: "hairline-notion.html", sha256: "3e7f77870cc8041773e21c02266a2939c35b70f7afad091c4b628102a4d1f928" },
 ];
 
 export type Shown = Example & { name: string; means: string; prompt: string; href: string };

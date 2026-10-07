@@ -43,6 +43,7 @@
     height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px;
     background: transparent; color: var(--ink); cursor: pointer;
   }
+  #play[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
   #means { margin: 14px 0 0; text-wrap: pretty; }
   #rules { margin: 6px 0 0; line-height: 1.6; }
   #error { margin: 12px 0 0; padding-left: 10px; border-left: 1px solid var(--ink); }
@@ -61,6 +62,8 @@
     <output id="value" for="intensity"></output>
     <span class="label">theme</span>
     <button id="theme" type="button" aria-label="Switch between the light and the dark theme"></button>
+    <span class="label">play</span>
+    <button id="play" type="button" aria-pressed="false">play</button>
   </div>
   <p id="means"></p>
   <p id="rules" class="label"></p>
@@ -133,6 +136,17 @@
     if (text === null) read.textContent = "rest";
     slider.addEventListener("input", () => { show(); handle.set(at(Number(slider.value))); });
     window.hairline.figure = handle;
+
+    /* play: an unseen pointer walks the figure's tour (or HL.LAP) until a hand arrives; ?play=1 starts it on load */
+    const play = $("play");
+    window.hairline.playing = null;
+    play.addEventListener("click", () => {
+      const was = play.getAttribute("aria-pressed") === "true";
+      if (was) { window.hairline.playing.stop(); window.hairline.playing = null; }
+      else window.hairline.playing = HL.tour(stage, figure.tour || HL.LAP, (i) => { if (window.hairline.onStop) window.hairline.onStop(i); });
+      play.setAttribute("aria-pressed", String(!was));
+    });
+    if (params.get("play") === "1") play.click();
 
     /* ?at=200,160 holds the pointer at a viewBox point, for a picture of the answer without a mouse */
     const p = (params.get("at") || "").split(",").map(Number);

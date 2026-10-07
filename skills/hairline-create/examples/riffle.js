@@ -160,5 +160,6 @@ hairline({
   means: "Eight cards in a tray: the one under the pointer stands up, and its neighbours lean away in turn.",
   rules: [1, 2, 8, 10],
   range: [0, 40, 90],
+  tour: [[160, 160], [200, 120], [280, 120], null],
   mount,
 });
