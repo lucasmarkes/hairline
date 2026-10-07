@@ -8,11 +8,13 @@
  * look.md's eight addresses at once in one browser, and writes the eight
  * pictures, labelled, on one sheet: hairline-<name>-look.png. Beside it go the
  * two 240px pictures with the name and the read-out hidden, for a reader told
- * nothing, hairline-<name>-blind.png, and, when there is an answer point, the
- * stage taken while the answer plays, rest to answer, hairline-<name>-motion.png.
- * Then it prints what can be measured, one line each, under look.md's item
- * numbers: 9 the frame, 8 the read-out, 12 the console, 4 the flicker, and 3
- * how much of the thumbnail's ink the pointer moves. It exits 1 when the
+ * nothing, hairline-<name>-blind.png, and, when the figure declares a tour, the
+ * stage every 300 ms through one lap of the tour under ?play=1, from the first
+ * stop until it comes round again, each stop's picture labelled,
+ * hairline-<name>-motion.png. Then it prints what can be measured, one line
+ * each, under look.md's item numbers: 9 the frame, 8 the read-out, 12 the
+ * console, 4 the flicker, 3 how much of the thumbnail's ink the pointer moves,
+ * and 14 the tour, whether every stop answers and holds still. It exits 1 when the
  * validator rejects the page or one of those fails, 2 when it cannot run, and
  * 0 otherwise. Everything else is for eyes, on the three pictures.
  *
@@ -49,19 +51,14 @@ const SMALL = 0.25;
 const FAINT = 0.37;
 /** A pixel this far from the ground on any channel is ink: the dim stroke on a white plate stands 31 from it. */
 const INKED = 24;
-/** The motion strip: 16 frames of the stage 40ms apart, four to a row. The last, at 600ms, is most of the way through a 700ms tween; the sheet's answer picture is where it ends. */
-const FRAMES = 16, EVERY = 40, ACROSS = 4;
+/** The motion strip: one picture every EVERY ms through a lap of the tour, four to a row, giving up after LAP_CAP ms. */
+const EVERY = 300, ACROSS = 4, LAP_CAP = 20000;
 
 /** The share of the rest picture's ink the answer moved: pixels inked in one and not the other, over the rest's ink. Each mask is a row of 0s and 1s. */
 export function moved(rest, answer) {
   let ink = 0, changed = 0;
   for (let i = 0; i < rest.length; i++) { ink += rest[i]; if (rest[i] !== answer[i]) changed++; }
   return ink ? changed / ink : 0;
-}
-
-/** When each frame of the motion strip is taken, in ms after the pointer arrives: the first at rest, as it arrives, the others every `every` ms after. */
-export function beats(n = FRAMES, every = EVERY) {
-  return Array.from({ length: n }, (_, i) => i * every);
 }
 
 /* A picture's ink, read in the page: 1 where a pixel stands INKED or more from the ground, the colour 14px inside the picture's top left corner, on the plate and clear of the drawing. The outer 12px, where the plate's own outline runs, are left out. */
@@ -123,9 +120,10 @@ function playwright(dir) {
 
 /*
  * Keeps the P the figure makes from its own camera, so a world point can be
- * turned into an ?at= point, and the `answer` and `edge` points a figure may
- * give in its hairline({ … }) call. The bench is not touched: both are caught
- * as the page sets them.
+ * turned into an ?at= point, the `answer` and `edge` points a figure may
+ * give in its hairline({ … }) call and its `tour`, and, in window.__stops, each
+ * stop the bench reports through window.hairline.onStop. The bench is not
+ * touched: all of it is caught as the page sets it.
  */
 const TRAP = () => {
   let hl, call;
@@ -135,8 +133,11 @@ const TRAP = () => {
     get: () => call,
     set: (v) => {
       call = (figure) => {
-        window.declared = { answer: figure.answer ?? null, edge: figure.edge ?? null };
-        return v(figure);
+        window.declared = { answer: figure.answer ?? null, edge: figure.edge ?? null, tour: figure.tour ?? null };
+        window.__stops = [];
+        const out = v(figure);
+        call.onStop = (i) => window.__stops.push(i);
+        return out;
       };
     },
   });
@@ -160,15 +161,6 @@ const STATE = () => {
     clip: { x: Math.max(0, plate.left - 8), y: Math.max(0, plate.top - 8), width: plate.width + 16, height: bottom - plate.top + 16 },
     stage: { x: plate.left, y: plate.top, width: plate.width, height: plate.height },
   };
-};
-
-/* The pointer at a viewBox point x,y, put there as the bench's ?at= puts it: one pointermove on the stage. */
-const POINT = (at) => {
-  const [x, y] = at.split(",").map(Number), stage = document.getElementById("stage"), r = stage.getBoundingClientRect();
-  stage.dispatchEvent(new PointerEvent("pointermove", {
-    pointerType: "mouse", pointerId: 1, bubbles: true,
-    clientX: r.left + (x / 400) * r.width, clientY: r.top + (y / 320) * r.height,
-  }));
 };
 
 /** A browser context with look.md's window: 800 × 900, so ?w=240 narrows the page and not the window. */
@@ -222,8 +214,8 @@ function sheet(name, shots) {
 <div class="row">${cell(by.low)}${cell(by.high)}</div>`;
 }
 
-/** The motion strip: the stage's frames, ACROSS to a row at their own size, each under its time since the pointer arrived. */
-function strip(name, at, frames) {
+/** The motion strip: the stage's pictures through the lap, ACROSS to a row at their own size, each under its stop or its time since the first stop. */
+function strip(name, frames) {
   return `<!doctype html><meta charset="utf-8"><style>
   body { margin: 0; padding: 16px; width: max-content; background: #ececef; color: #18181b; font: 13px/1.3 ui-monospace, Menlo, Consolas, monospace; }
   h1 { font: inherit; margin: 0 0 10px; color: #55555c; }
@@ -231,8 +223,37 @@ function strip(name, at, frames) {
   figure { margin: 0; }
   figcaption { margin: 0 0 6px; }
   img { display: block; outline: 1px solid #c9c9ce; }
-</style><h1>hairline-${esc(name)} · the answer while it plays, the pointer to at=${esc(at)} after the first picture</h1>
+</style><h1>hairline-${esc(name)} · the lap: ?play=1, one picture every ${EVERY}ms from the first stop until it comes round again</h1>
 <div class="grid">${frames.map((f) => `<figure><figcaption>${esc(f.label)}</figcaption><img src="data:image/png;base64,${f.png}"></figure>`).join("")}</div>`;
+}
+
+/**
+ * One entry per stop reached: its index, the read-out when it was reached, and
+ * whether the drawing held still before the next stop: two pictures in a row
+ * the same, EVERY ms apart, somewhere in the span. The span ends with the
+ * travel to the next stop, so the still window is looked for anywhere in it.
+ */
+export function stops(frames) {
+  const out = [];
+  for (let i = 0; i < frames.length; i++) {
+    if (frames[i].stop === null) continue;
+    let end = i + 1;
+    while (end < frames.length && frames[end].stop === null) end++;
+    const span = frames.slice(i, end);
+    const held = span.length < 2 || span.some((f, k) => k > 0 && f.svg === span[k - 1].svg);
+    out.push({ index: frames[i].stop, read: frames[i].read, held });
+  }
+  return out;
+}
+
+/** The 14 tour line: every point stop answers (its read-out is not "rest") and the stage holds still before the next stop. */
+export function tourLine(reached, tour) {
+  if (!reached.length) return { ok: false, line: "14 tour: fail. No stop was reached within the lap. Does the figure call HL.pointer on its stage?" };
+  for (const s of reached) {
+    if (tour[s.index] !== null && s.read === "rest") return { ok: false, line: `14 tour: fail. Stop ${s.index} leaves the read-out at "rest": the figure does not answer there.` };
+    if (!s.held) return { ok: false, line: `14 tour: fail. The drawing never held still at stop ${s.index} before the next stop began: it does not settle within the dwell.` };
+  }
+  return { ok: true, line: `14 tour: ok. Every stop answers and holds still. ${reached.map((s) => `stop ${s.index} "${s.read}"`).join(", ")}.` };
 }
 
 /** Whether a box leaves the 400 × 320 viewBox. */
@@ -285,7 +306,7 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
     const context = await window800(browser);
     const rest = await open(context, url, true);
     // the points the figure gives in its hairline({ … }) call, if any; a point on the command line wins over them
-    const decl = (await rest.page.evaluate(() => window.declared ?? null)) ?? { answer: null, edge: null }, theirs = new Set();
+    const decl = (await rest.page.evaluate(() => window.declared ?? null)) ?? { answer: null, edge: null, tour: null }, theirs = new Set();
     const isPoint = (p) => Array.isArray(p) && (p.length === 2 || p.length === 3) && p.every((v) => typeof v === "number" && Number.isFinite(v));
     if (!answer && decl.answer) {
       if (isPoint(decl.answer)) theirs.add((answer = decl.answer));
@@ -296,17 +317,20 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
       if (list.length <= 2 && list.every(isPoint)) for (const p of (edge = list)) theirs.add(p);
       else console.log(`the figure's hairline call gives edge ${JSON.stringify(decl.edge)}, which is not one point or two. Give --edge x,y,z instead.`);
     }
+    /* with no answer of its own, the tour's first point is the answer: where the figure first takes its own pointer */
+    const fromTour = new Set();
+    const firstStop = Array.isArray(decl.tour) ? decl.tour.find((p) => p !== null) ?? null : null;
+    if (!answer && isPoint(firstStop) && firstStop.length === 2) fromTour.add((answer = firstStop));
     const given = { answer, low: edge[0] ?? answer, high: edge[1] ?? edge[0] ?? answer }, at = {}, said = [];
     for (const [key, p] of Object.entries({ answer, edge0: edge[0], edge1: edge[1] })) {
       if (!p) continue;
       const v = p.length === 2 ? p : await rest.page.evaluate((q) => (window.P ? window.P(...q).map(Math.round) : null), p);
       if (!v) { said.push(`${p} -> no P: the figure stopped before it called HL.proj`); continue; }
       for (const use of Object.keys(given)) if (given[use] === p) at[use] = v.join(",");
-      said.push(`${key === "answer" ? "answer" : "edge"} ${p}${theirs.has(p) ? " (from the figure's hairline call)" : ""} -> at=${v.join(",")}`);
+      said.push(`${key === "answer" ? "answer" : "edge"} ${p}${theirs.has(p) ? " (from the figure's hairline call)" : fromTour.has(p) ? " (from the figure's tour)" : ""} -> at=${v.join(",")}`);
     }
     if (said.length) console.log(said.join(" · "));
-    if (!answer) console.log("no --answer: the answering shots are taken at rest. Give --answer x,y,z, a world point on the part that should answer.");
-    else if (!edge.length) console.log(`no --edge: the slider's two ends are taken with the pointer at the ${theirs.has(answer) ? "answer" : "--answer"} point.`);
+    if (answer && !edge.length) console.log(`no --edge: the slider's two ends are taken with the pointer at the ${theirs.has(answer) ? "answer" : fromTour.has(answer) ? "tour's first" : "--answer"} point.`);
 
     // 3. the other seven, and the zoom, opened at once; each waits from its own load, so the waits overlap
     const queryOf = (q, use) => [q, use && at[use] && `at=${at[use]}`].filter(Boolean).join("&");
@@ -349,24 +373,35 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
     await pair.locator("body").screenshot({ path: blindOut });
     const share = moved(await pair.evaluate(INK, [blind[0], INKED]), await pair.evaluate(INK, [blind[1], INKED]));
 
-    // the motion strip: the rest page, held still, given the pointer at the answer point as ?at= gives it, and taken while it plays
+    // the motion strip: the bench under ?play=1, a picture every EVERY ms from the first stop until stop 0 comes round again
     const motion = [];
-    let motionOut = null;
-    if (at.answer) {
-      const stage = shots[0], snap = async () => (await stage.page.screenshot({ clip: stage.stage })).toString("base64");
-      motion.push({ label: "rest", png: await snap() });
-      await stage.page.evaluate(POINT, at.answer);
+    let motionOut = null, reached = [];
+    if (decl.tour) {
+      const lap = await open(context, address("play=1"), true);
+      await sleep(WAIT);
+      const box = (await lap.page.evaluate(STATE)).stage;
       const t0 = Date.now();
-      for (const t of beats().slice(1)) {
-        await sleep(t0 + t - Date.now());
-        const ms = Date.now() - t0;
-        motion.push({ label: `${ms}ms`, png: await snap() });
+      let seen = 0, first = -1;
+      while (Date.now() - t0 < LAP_CAP) {
+        const s = await lap.page.evaluate(() => ({ stops: window.__stops.slice(), read: document.getElementById("read").textContent, svg: document.getElementById("stage").innerHTML }));
+        const fresh = s.stops.slice(seen);
+        seen = s.stops.length;
+        if (first < 0 && fresh.length) first = Date.now();
+        if (first >= 0) {
+          if (motion.length && fresh.includes(0)) break;                    // round again
+          const stop = fresh.length ? fresh[fresh.length - 1] : null;
+          motion.push({ stop, read: s.read, svg: s.svg, label: stop !== null ? `stop ${stop}` : `${Date.now() - first}ms`, png: (await lap.page.screenshot({ clip: box })).toString("base64") });
+        }
+        await sleep(EVERY);
       }
-      motionOut = join(cwd, `hairline-${name}-motion.png`);
-      const film = await (await browser.newContext({ viewport: { width: 1400, height: 800 } })).newPage();
-      await film.setContent(strip(name, at.answer, motion));
-      await film.evaluate(() => Promise.all([...document.images].map((i) => i.decode())));
-      await film.screenshot({ path: motionOut, fullPage: true });
+      reached = stops(motion);
+      if (motion.length) {
+        motionOut = join(cwd, `hairline-${name}-motion.png`);
+        const film = await (await browser.newContext({ viewport: { width: 1400, height: 800 } })).newPage();
+        await film.setContent(strip(name, motion));
+        await film.evaluate(() => Promise.all([...document.images].map((i) => i.decode())));
+        await film.screenshot({ path: motionOut, fullPage: true });
+      }
     }
 
     // 5. what can be measured
@@ -406,15 +441,22 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
 
 
     // how much of the thumbnail the answer moves: a warning, never a fail
-    if (!answer) console.log("3 answer: not measured. No --answer.");
+    if (!answer) console.log("3 answer: not measured. The figure declares no tour and no --answer was given.");
     else {
       const faint = share < FAINT;
       console.log(`3 answer: ${faint ? "warn" : "ok"}. At 240px the pointer moves ${n0(share * 100)}% of the ink, the pixels drawn in one small picture and not the other, over those drawn at rest${faint ? `; under ${n0(FAINT * 100)}% the answer is hard to see in a thumbnail. A change of colour moves no ink: make the answer move more, or say why a small one is right` : ""}.`);
     }
 
+    // the lap: every point stop answers and holds still
+    if (!decl.tour) console.log("14 tour: not measured. The figure declares no tour.");
+    else {
+      const r = tourLine(reached, decl.tour);
+      if (r.ok) console.log(r.line); else fail(r.line);
+    }
+
     console.log(`sheet ${out}`);
     console.log(`blind ${blindOut} holds the small and small-answer pictures with the name and the read-out hidden, as someone who has not seen the figure would meet it: for item 1, look at it that way, or show it to such a reader.`);
-    if (motionOut) console.log(`motion ${motionOut} is the stage while the answer plays: ${motion.length} pictures, rest first, then each labelled with the ms since the pointer reached the answer point. The sheet shows only pictures that held still, so a part that folds, crosses another part, or jumps between two frames on the way is seen only here: look for one, and fix it in the figure.`);
+    if (motionOut) console.log(`motion ${motionOut} is the stage while the tour plays its lap: ${motion.length} pictures, every ${EVERY} ms from the first stop, a stop's picture labelled stop i and the others with the ms since the first stop. The sheet shows only pictures that held still, so a part that folds, crosses another part, or jumps between two stops on the way is seen only here: look for one, and fix it in the figure.`);
     if (zoomOut) console.log(`zoom ${zoomOut}`);
     return failed ? 1 : 0;
   } finally {

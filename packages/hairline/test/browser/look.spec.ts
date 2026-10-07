@@ -60,7 +60,8 @@ test.describe("look.mjs", () => {
       /* 4 is information: a busy machine can say moving, so only its shape is held */
       expect(run.out).toMatch(/^4 flicker: (still|moving)\. .* Information, not a check: look\.md, item 4\.$/m);
       expect(run.out).toMatch(new RegExp(`^blind .*hairline-${name}-blind\\.png holds the small and small-answer pictures with the name and the read-out hidden`, "m"));
-      expect(run.out).toMatch(new RegExp(`^motion .*hairline-${name}-motion\\.png is the stage while the answer plays: 16 pictures, rest first`, "m"));
+      expect(run.out).toMatch(new RegExp(`^motion .*hairline-${name}-motion\\.png is the stage while the tour plays its lap: \\d+ pictures`, "m"));
+      expect(run.out).toMatch(/^14 tour: ok\. Every stop answers and holds still\./m);
       for (const png of ["look", "answer", "blind", "motion"]) wrote(cwd, `hairline-${name}-${png}.png`);
     });
   }
@@ -77,7 +78,7 @@ test.describe("look.mjs", () => {
     expect(run.out).not.toContain("no --answer");
     expect(run.out).not.toContain("no --edge");
     expect(run.out).toMatch(/^3 answer: ok\. /m);
-    expect(run.out).toMatch(/^motion .*hairline-terrain-motion\.png /m);
+    expect(run.out).toMatch(/^motion .*hairline-terrain-motion\.png is the stage while the tour plays its lap/m);
     wrote(cwd, "hairline-terrain-motion.png");
   });
 
@@ -92,14 +93,15 @@ test.describe("look.mjs", () => {
     expect(run.out).not.toContain("cell 2·6");
   });
 
-  test("says so when the figure's points are not points, and looks on at rest", async () => {
+  test("says so when the figure's points are not points, and takes the answer from the tour's first stop", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "hl-look-"));
     writeFileSync(join(cwd, "terrain.js"), declaring('  answer: ["a", 1],\n  edge: [[1, 2, 3], [4, 5, 6], [7, 8, 9]],\n'));
     const run = await look(cwd, "terrain.js");
     expect(run.out).toMatch(/^the figure's hairline call gives answer a,1, which is not a point: two numbers for the viewBox, three for the world\. Give --answer x,y,z instead\.$/m);
     expect(run.out).toMatch(/^the figure's hairline call gives edge \[\[1,2,3\],\[4,5,6\],\[7,8,9\]\], which is not one point or two\. Give --edge x,y,z instead\.$/m);
-    expect(run.out).toMatch(/^no --answer: /m);
-    expect(run.out).toMatch(/^3 answer: not measured\. /m);
+    expect(run.out).toMatch(/^answer 128,150 \(from the figure's tour\) -> at=128,150/m);
+    expect(run.out).toMatch(/^3 answer: (ok|warn)\. /m);
+    expect(run.out).toMatch(/^14 tour: ok\. /m);
     expect(run.code, run.out).toBe(0);
   });
 
@@ -116,19 +118,6 @@ test.describe("look.mjs", () => {
     expect(run.code, run.out).toBe(0);
   });
 
-  test("without an answer point, writes the blind pair and no motion strip", async () => {
-    const cwd = mkdtempSync(join(tmpdir(), "hl-look-"));
-    const run = await look(cwd, `${SKILL}examples/terrain.js`);
-    expect(run.code, run.out).toBe(0);
-    expect(run.out).toMatch(/^no --answer: /m);
-    expect(run.out).toMatch(/^3 answer: not measured\. No --answer\.$/m);
-    wrote(cwd, "hairline-terrain-look.png");
-    wrote(cwd, "hairline-terrain-blind.png");
-    expect(run.out).toMatch(/^blind .*hairline-terrain-blind\.png holds /m);
-    expect(existsSync(join(cwd, "hairline-terrain-motion.png"))).toBe(false);
-    expect(run.out).not.toMatch(/^motion /m);
-  });
-
   test("fails a figure that throws when it mounts", async () => {
     const cwd = mkdtempSync(join(tmpdir(), "hl-look-"));
     const src = readFileSync(SKILL + "examples/terrain.js", "utf8").replace(/^(function mount\(.*\{)$/m, '$1\n  throw new Error("no drawing today");');
@@ -138,5 +127,16 @@ test.describe("look.mjs", () => {
     expect(run.code, run.out).toBe(1);
     expect(run.out).toMatch(/^12 console: fail/m);
     expect(run.out).toContain("no drawing today");
+  });
+
+  test("fails 14 tour when the figure ignores the pointer", async () => {
+    const cwd = mkdtempSync(join(tmpdir(), "hl-look-"));
+    const terrain = readFileSync(SKILL + "examples/terrain.js", "utf8");
+    const deaf = terrain.replace("move: (p) => { over = unproj(C, p[0], p[1], 0); retarget(); },", "move: () => {},");
+    expect(deaf).not.toBe(terrain);
+    writeFileSync(join(cwd, "terrain.js"), deaf);
+    const { code, out } = await look(cwd, "terrain.js");
+    expect(out).toMatch(/^14 tour: fail\. Stop 0 leaves the read-out at "rest"/m);
+    expect(code).toBe(1);
   });
 });
