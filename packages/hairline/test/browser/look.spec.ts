@@ -139,4 +139,33 @@ test.describe("look.mjs", () => {
     expect(out).toMatch(/^14 tour: fail\. Stop 0 leaves the read-out at "rest"/m);
     expect(code).toBe(1);
   });
+
+  test("fails 12 console, naming the lap, when the figure throws as the tour moves it", async () => {
+    const cwd = mkdtempSync(join(tmpdir(), "hl-look-"));
+    const terrain = readFileSync(SKILL + "examples/terrain.js", "utf8");
+    /* the shots each move the pointer once, so only the lap reaches the second move */
+    const jumpy = terrain
+      .replace("  bag.add(pointer(stage, {\n", "  let moves = 0;\n  bag.add(pointer(stage, {\n")
+      .replace("move: (p) => { over = unproj(C, p[0], p[1], 0); retarget(); },", 'move: (p) => { if (++moves === 2) throw new Error("moved twice"); over = unproj(C, p[0], p[1], 0); retarget(); },');
+    expect(jumpy).toContain("let moves = 0;");
+    expect(jumpy).toContain("moved twice");
+    writeFileSync(join(cwd, "terrain.js"), jumpy);
+    const { code, out } = await look(cwd, "terrain.js");
+    expect(out).toMatch(/^12 console: fail\. .*moved twice.* \(lap\)/m);
+    expect(code).toBe(1);
+  });
+
+  test("says the tour never started when the figure throws as it mounts, without waiting out the lap", async () => {
+    const cwd = mkdtempSync(join(tmpdir(), "hl-look-"));
+    const src = readFileSync(SKILL + "examples/terrain.js", "utf8").replace(/^(function mount\(.*\{)$/m, '$1\n  throw new Error("no drawing today");');
+    expect(src).toContain("no drawing today");
+    writeFileSync(join(cwd, "terrain.js"), src);
+    const t0 = Date.now();
+    const { code, out } = await look(cwd, "terrain.js");
+    expect(out).toMatch(/^14 tour: fail\. The tour never started because the figure did not mount: .*no drawing today/m);
+    expect(out).not.toContain("Does the figure call HL.pointer");
+    expect(code).toBe(1);
+    /* the lap alone could hold it 20 seconds */
+    expect(Date.now() - t0).toBeLessThan(25_000);
+  });
 });

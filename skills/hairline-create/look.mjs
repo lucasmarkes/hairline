@@ -375,14 +375,16 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
 
     // the motion strip: the bench under ?play=1, a picture every EVERY ms from the first stop until stop 0 comes round again
     const motion = [];
-    let motionOut = null, reached = [];
+    let motionOut = null, reached = [], lap = null, started = false;
     if (decl.tour) {
-      const lap = await open(context, address("play=1"), true);
+      lap = await open(context, address("play=1"), true);
       await sleep(WAIT);
       const box = (await lap.page.evaluate(STATE)).stage;
+      /* a figure that did not mount never wired the play button: there is no lap to wait for */
+      started = await lap.page.evaluate(() => !!window.hairline?.playing);
       const t0 = Date.now();
       let seen = 0, first = -1;
-      while (Date.now() - t0 < LAP_CAP) {
+      while (started && Date.now() - t0 < LAP_CAP) {
         const s = await lap.page.evaluate(() => ({ stops: window.__stops.slice(), read: document.getElementById("read").textContent, svg: document.getElementById("stage").innerHTML }));
         const fresh = s.stops.slice(seen);
         seen = s.stops.length;
@@ -428,8 +430,11 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
 
     // each complaint once, with the shots that made it
     const noise = new Map();
-    for (const s of shots) for (const b of [...s.bad, ...(s.error ? [`error line under the stage: ${s.error}`] : [])]) noise.set(b, [...(noise.get(b) ?? []), s.name]);
-    const heard = [...noise].map(([b, where]) => `${b} (${where.length === shots.length ? "every shot" : where.join(", ")})`);
+    for (const s of [...shots, ...(lap ? [{ name: "lap", bad: lap.bad }] : [])]) for (const b of [...s.bad, ...(s.error ? [`error line under the stage: ${s.error}`] : [])]) noise.set(b, [...(noise.get(b) ?? []), s.name]);
+    const heard = [...noise].map(([b, where]) => {
+      const shotsOnly = where.filter((n) => n !== "lap"), onLap = where.includes("lap");
+      return `${b} (${shotsOnly.length === shots.length ? `every shot${onLap ? " and the lap" : ""}` : where.join(", ")})`;
+    });
     if (heard.length) fail(`12 console: fail. ${heard.slice(0, 4).join("; ")}${heard.length > 4 ? `; and ${heard.length - 4} more` : ""}.`);
     else console.log("12 console: ok. No console error or warning, no page error, no error line under the stage.");
 
@@ -449,7 +454,10 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
 
     // the lap: every point stop answers and holds still
     if (!decl.tour) console.log("14 tour: not measured. The figure declares no tour.");
-    else {
+    else if (!started) {
+      const why = lap.bad.find((b) => b.startsWith("page error")) ?? lap.bad[0];
+      fail(`14 tour: fail. The tour never started because the figure did not mount: ${why ?? "the play button was never wired"}. Fix that first; 12 console has it.`);
+    } else {
       const r = tourLine(reached, decl.tour);
       if (r.ok) console.log(r.line); else fail(r.line);
     }
