@@ -42,6 +42,24 @@ describe("register", () => {
     expect(o.targets.has(el)).toBe(false);
     keep.unregister();
   });
+
+  it("a tick that throws sleeps alone: the error is reported, and every other board keeps its frames", () => {
+    const thrown: Array<() => void> = [];
+    vi.spyOn(globalThis, "setTimeout").mockImplementation(((fn: () => void) => { thrown.push(fn); return 0; }) as typeof setTimeout);
+    const el = host(), other = host();
+    const boom = new Error("boom");
+    let n = 0;
+    const bad = register(el, () => { if (n++ > 0) throw boom; return true; });
+    const good = vi.fn(() => true), ok = register(other, good);
+    expect(() => frames(5)).not.toThrow();
+    expect(n).toBe(2);
+    expect(good.mock.calls.length).toBeGreaterThanOrEqual(6);
+    expect(pending()).toBe(1);
+    expect(thrown).toHaveLength(1);
+    expect(thrown[0]).toThrow(boom);
+    bad.unregister();
+    ok.unregister();
+  });
 });
 
 type Call = { kind: "move" | "leave"; type: string; p?: Vec2 };
@@ -213,6 +231,33 @@ describe("tour", () => {
     const { log: l2 } = stub(late);
     expect(until(() => l2.length > 0, 5)).toBe(true);
     expect(l2[0].type).toBe("ghost");
+    h.stop();
+  });
+
+  it("a move that throws under the ghost stops that tour alone: the error is reported, and the other figures keep their frames", () => {
+    const thrown: Array<() => void> = [];
+    vi.spyOn(globalThis, "setTimeout").mockImplementation(((fn: () => void) => { thrown.push(fn); return 0; }) as typeof setTimeout);
+    const el = host(), other = host();
+    const boom = new Error("boom");
+    let moves = 0;
+    pointer(el, { move: () => { moves++; throw boom; }, leave: () => {} });
+    const h = tour(el, [[200, 100], null]);
+    const good = vi.fn(() => true), ok = register(other, good);
+    expect(() => until(() => moves > 0, 200)).not.toThrow();
+    expect(moves).toBe(1);
+    expect(thrown).toHaveLength(1);
+    expect(thrown[0]).toThrow(boom);
+    const n = good.mock.calls.length;
+    frames(10);
+    expect(good.mock.calls.length).toBe(n + 10);
+    expect(pending()).toBe(1);
+    /* a board registered afterwards is ticked by the loop too, not only at register */
+    const late = vi.fn(() => true), l = register(host(), late);
+    frames(3);
+    expect(late.mock.calls.length).toBe(4);
+    expect(moves).toBe(1);
+    l.unregister();
+    ok.unregister();
     h.stop();
   });
 

@@ -83,18 +83,18 @@
     {
       "name": "vanilla, every figure",
       "path": "dist/index.js",
-      "limit": "35.1 kB"
+      "limit": "35.3 kB"
     },
     {
       "name": "vanilla, one figure",
       "path": "dist/index.js",
       "import": "{ terrain }",
-      "limit": "6.3 kB"
+      "limit": "6.4 kB"
     },
     {
       "name": "react, every component",
       "path": "dist/react.js",
-      "limit": "35.5 kB",
+      "limit": "35.7 kB",
       "ignore": [
         "react",
         "react/jsx-runtime"

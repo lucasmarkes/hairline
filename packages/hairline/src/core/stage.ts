@@ -100,7 +100,11 @@ function frame(now: number) {
   const dt = Math.min(0.05, Math.max(0, (now - last) / 1000));
   last = now;
   let any = false;
-  for (const b of boards.slice()) if (b.vis && b.awake) { b.awake = !!b.tick(dt, now); any = any || b.awake; }
+  for (const b of boards.slice()) if (b.vis && b.awake) {
+    /* a tick that throws, or a handler the tour calls from one, sleeps alone: the error is reported as uncaught and every other board keeps its frames */
+    try { b.awake = !!b.tick(dt, now); } catch (err) { b.awake = false; setTimeout(() => { throw err; }); }
+    any = any || b.awake;
+  }
   raf = any ? requestAnimationFrame(frame) : 0;
 }
 

@@ -1,4 +1,4 @@
-/* hairline kernel sha256:a0e1deb5b5f20bfb1424b477e60b2f8e9d8e10cf480bf64c028b4da0142e34cb */
+/* hairline kernel sha256:3a19aa2640ba8c6c306184d05fddfbd4f3323a6ebd9217dd3cbb38e9db74991c */
 /*
  * HL: everything a figure may call. Read this index; the code under it is the
  * package's src/core, unchanged, and a figure should not need to read it.
@@ -400,7 +400,14 @@ var HL = (() => {
     last = now;
     let any = false;
     for (const b of boards.slice()) if (b.vis && b.awake) {
-      b.awake = !!b.tick(dt, now);
+      try {
+        b.awake = !!b.tick(dt, now);
+      } catch (err) {
+        b.awake = false;
+        setTimeout(() => {
+          throw err;
+        });
+      }
       any = any || b.awake;
     }
     raf = any ? requestAnimationFrame(frame) : 0;
