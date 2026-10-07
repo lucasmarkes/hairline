@@ -89,6 +89,8 @@ const INDEX = `/*
  * The bench's business, not a figure's
  *   css(lightDark)
  *   inject(root)
+ *   tour(stage, stops, onStop)             an unseen pointer that walks the stops, [x, y] in viewBox units or null to leave, and gives way to a real one; onStop(i) on each arrival; returns {stop}
+ *   LAP                                    the default stops: a diamond around the centre, then a leave
  *
  * Classes, on path, polygon, ellipse and line. They are the whole palette; a
  * figure sets no colour, width or fill of its own.
