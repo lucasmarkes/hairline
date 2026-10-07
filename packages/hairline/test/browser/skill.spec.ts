@@ -245,6 +245,7 @@ test("?at= holds the pointer over ?play=1", async ({ page }) => {
     });
   });
   await page.goto("/bench/terrain?play=1&at=200,160");
+  await expect(page.locator("#play")).toHaveAttribute("aria-pressed", "true");
   await expect.poll(() => read(page)).toMatch(/^cell/);
   await page.waitForTimeout(3000);
   expect(await page.evaluate(() => (window as any).__stops)).toEqual([]);

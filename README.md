@@ -120,7 +120,7 @@ The figure's styles have no specificity, so any rule of yours wins without `!imp
 
 - **Accessibility.** A figure is an image with a description you can replace with `label`. Riffle is the exception: it is a focusable group, the arrow keys walk its cards, and a live region reads the card out.
 - **Reduced motion.** With `prefers-reduced-motion`, the figures that play on their own (Phosphor and Slow) hold still, a figure given `play` rests, and every figure still answers the pointer.
-- **Performance.** Every figure on a page shares one `requestAnimationFrame` loop. A figure off screen, or at rest, does no work, and the loop stops when nothing is moving.
+- **Performance.** Every figure on a page shares one `requestAnimationFrame` loop. A figure off screen, or at rest, does no work, and the loop stops when nothing is moving; a figure given `play` keeps it running while it is on screen.
 - **Server rendering.** On the server a component is an empty box with a 5:4 aspect ratio, so nothing shifts when it draws. The functions need a DOM: call them in an effect, in `onMount`, or in a script after the element.
 - **Shadow DOM.** A figure mounted inside a shadow root styles itself there.
 
