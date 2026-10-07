@@ -1,4 +1,4 @@
-/* hairline kernel sha256:8e2abcbdf63c7755195ee942c39e9c8ea6a539d1147e986dd1c153559121f075 */
+/* hairline kernel sha256:d360e41f54c8465afcec20bb096a0b3eaa8433f089bc9cbd743cb96abf4f69a8 */
 /*
  * HL: everything a figure may call. Read this index; the code under it is the
  * package's src/core, unchanged, and a figure should not need to read it.
@@ -416,10 +416,12 @@ var HL = (() => {
     if (io) return;
     io = new IntersectionObserver((es) => {
       for (const e of es) {
-        const b = byStage.get(e.target);
-        if (!b) continue;
-        b.vis = e.isIntersecting;
-        if (b.vis) wake(b);
+        const set = byStage.get(e.target);
+        if (!set) continue;
+        for (const b of set) {
+          b.vis = e.isIntersecting;
+          if (b.vis) wake(b);
+        }
       }
     }, { rootMargin: "80px" });
     rm = matchMedia("(prefers-reduced-motion: reduce)");
@@ -438,8 +440,15 @@ var HL = (() => {
     start();
     const b = { stage, tick, vis: false, awake: true };
     boards.push(b);
-    byStage.set(stage, b);
-    io.observe(stage);
+    const peers = byStage.get(stage);
+    if (peers) {
+      for (const p of peers) b.vis = p.vis;
+      peers.add(b);
+      if (b.vis) wake(b);
+    } else {
+      byStage.set(stage, /* @__PURE__ */ new Set([b]));
+      io.observe(stage);
+    }
     tick(0, performance.now());
     let gone = false;
     return {
@@ -450,9 +459,13 @@ var HL = (() => {
         if (gone) return;
         gone = true;
         boards = boards.filter((x) => x !== b);
-        if (byStage.get(stage) === b) {
-          byStage.delete(stage);
-          io?.unobserve(stage);
+        const set = byStage.get(stage);
+        if (set) {
+          set.delete(b);
+          if (!set.size) {
+            byStage.delete(stage);
+            io?.unobserve(stage);
+          }
         }
         if (!boards.length) stop();
       }

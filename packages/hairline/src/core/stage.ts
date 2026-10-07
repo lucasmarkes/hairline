@@ -90,7 +90,8 @@ export type Loop = {
 type Board = { stage: Element; tick: Tick; vis: boolean; awake: boolean };
 
 let boards: Board[] = [];
-const byStage = new Map<Element, Board>();
+/** The boards on each stage: a figure's engine and, under play, its tour share one stage. */
+const byStage = new Map<Element, Set<Board>>();
 let raf = 0, last = 0;
 let io: IntersectionObserver | null = null;
 let rm: MediaQueryList | null = null;
@@ -115,10 +116,12 @@ function start() {
   if (io) return;
   io = new IntersectionObserver((es) => {
     for (const e of es) {
-      const b = byStage.get(e.target);
-      if (!b) continue;
-      b.vis = e.isIntersecting;
-      if (b.vis) wake(b);
+      const set = byStage.get(e.target);
+      if (!set) continue;
+      for (const b of set) {
+        b.vis = e.isIntersecting;
+        if (b.vis) wake(b);
+      }
     }
   }, { rootMargin: "80px" });
   rm = matchMedia("(prefers-reduced-motion: reduce)");
@@ -142,8 +145,16 @@ export function register(stage: Element, tick: Tick): Loop {
   start();
   const b: Board = { stage, tick, vis: false, awake: true };
   boards.push(b);
-  byStage.set(stage, b);
-  io!.observe(stage);
+  const peers = byStage.get(stage);
+  if (peers) {
+    /* a stage already watched: the new board takes its peers' visibility, since the observer will not speak again until it changes */
+    for (const p of peers) b.vis = p.vis;
+    peers.add(b);
+    if (b.vis) wake(b);
+  } else {
+    byStage.set(stage, new Set([b]));
+    io!.observe(stage);
+  }
   tick(0, performance.now());
   let gone = false;
   return {
@@ -152,7 +163,14 @@ export function register(stage: Element, tick: Tick): Loop {
       if (gone) return;
       gone = true;
       boards = boards.filter((x) => x !== b);
-      if (byStage.get(stage) === b) { byStage.delete(stage); io?.unobserve(stage); }
+      const set = byStage.get(stage);
+      if (set) {
+        set.delete(b);
+        if (!set.size) {
+          byStage.delete(stage);
+          io?.unobserve(stage);
+        }
+      }
       if (!boards.length) stop();
     },
   };
