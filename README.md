@@ -43,7 +43,7 @@ The figure fills its parent's width at a 5:4 aspect ratio. The entry is a client
 ```ts
 import { terrain } from "@lucasmarkes/hairline";
 
-const figure = terrain(document.getElementById("figure")!);
+const figure = terrain(document.getElementById("figure")!, { play: true });
 
 figure.update({ intensity: 0.8 });
 figure.destroy();
@@ -85,7 +85,7 @@ A figure draws into the element you give it, at the element's width and a 5:4 as
 
 ## Options
 
-Every figure takes the same four, all optional:
+Every figure takes the same five, all optional:
 
 | Option | Type | Default | |
 | --- | --- | --- | --- |
@@ -93,6 +93,7 @@ Every figure takes the same four, all optional:
 | `theme` | `"auto" \| "light" \| "dark"` | `"auto"` | `"auto"` follows the page: an ancestor with class `dark` or `data-theme="dark"`, then the page's `color-scheme`. |
 | `label` | `string` | a description in English | The accessible name. In React, `aria-label` does the same. |
 | `onRead` | `(text: string) => void` | | The figure's caption, each time it changes: `"03"`, `"gap 28.0"`, `"rate 0.20×"`. |
+| `play` | `boolean` | `false` | Walks the figure through its answer on its own, in a loop, until the pointer or focus arrives; it resumes after they leave. |
 
 In `update`, a key set to `undefined` goes back to its default, and a key left out stays as it is.
 
@@ -118,14 +119,14 @@ The figure's styles have no specificity, so any rule of yours wins without `!imp
 ## Notes
 
 - **Accessibility.** A figure is an image with a description you can replace with `label`. Riffle is the exception: it is a focusable group, the arrow keys walk its cards, and a live region reads the card out.
-- **Reduced motion.** With `prefers-reduced-motion`, the figures that play on their own (Phosphor and Slow) hold still, and every figure still answers the pointer.
+- **Reduced motion.** With `prefers-reduced-motion`, the figures that play on their own (Phosphor and Slow) hold still, a figure given `play` rests, and every figure still answers the pointer.
 - **Performance.** Every figure on a page shares one `requestAnimationFrame` loop. A figure off screen, or at rest, does no work, and the loop stops when nothing is moving.
 - **Server rendering.** On the server a component is an empty box with a 5:4 aspect ratio, so nothing shifts when it draws. The functions need a DOM: call them in an effect, in `onMount`, or in a script after the element.
 - **Shadow DOM.** A figure mounted inside a shadow root styles itself there.
 
 ## Make your own
 
-`hairline-create` is a skill for coding agents. Give it an idea and it draws a new figure to Hairline's ten rules, on the same engine as the twenty-seven above, as one HTML file.
+`hairline-create` is a skill for coding agents. Give it an idea and it draws a new figure to Hairline's ten rules, on the same engine as the twenty-seven above, as one HTML file. Every figure it makes declares a tour, the stops a hand would visit, and the page it writes has a play button that walks it.
 
 ```sh
 npx skills add lucasmarkes/hairline
