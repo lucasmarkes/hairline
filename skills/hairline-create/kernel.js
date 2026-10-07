@@ -1,4 +1,4 @@
-/* hairline kernel sha256:d360e41f54c8465afcec20bb096a0b3eaa8433f089bc9cbd743cb96abf4f69a8 */
+/* hairline kernel sha256:713a89cee2645cb50226350c813ef2de043fbe6d2c7b86e418d19665276377fe */
 /*
  * HL: everything a figure may call. Read this index; the code under it is the
  * package's src/core, unchanged, and a figure should not need to read it.
@@ -102,6 +102,7 @@ var HL = (() => {
   __export(kernel_exports, {
     Cam: () => Cam,
     EASE_LIFT: () => EASE_LIFT,
+    LAP: () => LAP,
     bezier: () => bezier,
     circ: () => circ,
     clamp: () => clamp,
@@ -140,6 +141,7 @@ var HL = (() => {
     spring: () => spring,
     stepS: () => stepS,
     tdone: () => tdone,
+    tour: () => tour,
     tset: () => tset,
     tval: () => tval,
     tween: () => tween,
@@ -471,7 +473,10 @@ var HL = (() => {
       }
     };
   }
+  var handlers = /* @__PURE__ */ new WeakMap();
+  var touring = /* @__PURE__ */ new WeakMap();
   function pointer(stage, on) {
+    handlers.set(stage, on);
     let tm = 0;
     const pt = (e) => {
       const r = stage.getBoundingClientRect();
@@ -479,26 +484,142 @@ var HL = (() => {
     };
     const move = (e) => {
       clearTimeout(tm);
+      touring.get(stage)?.hold();
       on.move(pt(e), e);
     };
     const down = (e) => {
       clearTimeout(tm);
+      touring.get(stage)?.hold();
       if (e.pointerType !== "mouse") stage.releasePointerCapture?.(e.pointerId);
       if (on.down) on.down(pt(e), e);
       else on.move(pt(e), e);
     };
     const leave = (e) => {
       clearTimeout(tm);
-      tm = window.setTimeout(() => on.leave(e), e.pointerType === "mouse" ? 0 : 1400);
+      tm = window.setTimeout(() => {
+        on.leave(e);
+        touring.get(stage)?.release();
+      }, e.pointerType === "mouse" ? 0 : 1400);
     };
     stage.addEventListener("pointermove", move);
     stage.addEventListener("pointerdown", down);
     stage.addEventListener("pointerleave", leave);
     return () => {
       clearTimeout(tm);
+      if (handlers.get(stage) === on) handlers.delete(stage);
       stage.removeEventListener("pointermove", move);
       stage.removeEventListener("pointerdown", down);
       stage.removeEventListener("pointerleave", leave);
+    };
+  }
+  var LAP = [[128, 150], [200, 118], [272, 150], [200, 206], null];
+  var TRAVEL = 900;
+  var DWELL = 1200;
+  var REST = 1800;
+  var RESUME = 1200;
+  var STAGGER = 450;
+  var GHOST = { pointerType: "ghost" };
+  var started = 0;
+  function entry([x, y]) {
+    const dx = x - 200, dy = y - 160;
+    if (!dx && !dy) return [200, 320];
+    const k = Math.min(dx ? (dx > 0 ? 200 : -200) / dx : Infinity, dy ? (dy > 0 ? 160 : -160) / dy : Infinity);
+    return [200 + dx * k, 160 + dy * k];
+  }
+  function tour(stage, stops, onStop) {
+    let i = 0;
+    let wait = RESUME + STAGGER * (started++ % 4);
+    let t = -1;
+    let at = null;
+    let origin = [200, 320];
+    let hand = false, keys = stage.contains(stage.ownerDocument.activeElement);
+    let gone = false;
+    const leave = () => {
+      at = null;
+      t = -1;
+      handlers.get(stage)?.leave(GHOST);
+    };
+    const tick = (dt) => {
+      if (hand || keys || !stops.length) return false;
+      if (reducedMotion()) {
+        if (at) leave();
+        return false;
+      }
+      if (wait > 0) {
+        wait -= dt * 1e3;
+        return true;
+      }
+      const stop2 = stops[i];
+      if (stop2 === null) {
+        if (at) leave();
+        onStop?.(i);
+        i = (i + 1) % stops.length;
+        wait = REST;
+        return true;
+      }
+      const h = handlers.get(stage);
+      if (!h) return true;
+      if (t < 0) {
+        origin = at ?? entry(stop2);
+        t = 0;
+      }
+      t = Math.min(TRAVEL, t + dt * 1e3);
+      const k = EASE_LIFT(t / TRAVEL);
+      at = [origin[0] + (stop2[0] - origin[0]) * k, origin[1] + (stop2[1] - origin[1]) * k];
+      h.move(at, GHOST);
+      if (t < TRAVEL) return true;
+      onStop?.(i);
+      i = (i + 1) % stops.length;
+      t = -1;
+      wait = DWELL;
+      return true;
+    };
+    const take = () => {
+      at = null;
+      t = -1;
+    };
+    const give = () => {
+      if (hand || keys) return;
+      i = 0;
+      t = -1;
+      wait = RESUME;
+      board.wake();
+    };
+    const me = {
+      hold: () => {
+        hand = true;
+        take();
+      },
+      release: () => {
+        if (!hand) return;
+        hand = false;
+        give();
+      }
+    };
+    const focusIn = () => {
+      keys = true;
+      take();
+    };
+    const focusOut = (e) => {
+      if (keys && !stage.contains(e.relatedTarget)) {
+        keys = false;
+        give();
+      }
+    };
+    stage.addEventListener("focusin", focusIn);
+    stage.addEventListener("focusout", focusOut);
+    touring.set(stage, me);
+    const board = register(stage, tick);
+    return {
+      stop: () => {
+        if (gone) return;
+        gone = true;
+        board.unregister();
+        stage.removeEventListener("focusin", focusIn);
+        stage.removeEventListener("focusout", focusOut);
+        if (touring.get(stage) === me) touring.delete(stage);
+        if (at) leave();
+      }
     };
   }
   function disposer() {

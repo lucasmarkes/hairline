@@ -2,7 +2,7 @@ import {
   ghost, r2,
   type Camera, type PrismPaths, type Projector, type Sample, type Vec2,
 } from "./iso";
-import { setReducedMotion } from "./motion";
+import { EASE_LIFT, reducedMotion, setReducedMotion } from "./motion";
 
 /**
  * Hairline — the DOM side every figure shares: making svg nodes, the helpers
@@ -186,6 +186,11 @@ export type PointerHandlers = {
   leave(e: PointerEvent): void;
 };
 
+/** The handlers each stage's pointer() was given, so a tour can drive them. */
+const handlers = new WeakMap<Element, PointerHandlers>();
+/** The tour on each stage, told when a real pointer arrives and leaves. */
+const touring = new WeakMap<Element, { hold(): void; release(): void }>();
+
 /**
  * Pointer input in viewBox units. A mouse leaving acts at once; a finger
  * lifting holds the pose for 1.4s first, so a tap reads as a look rather than
@@ -193,29 +198,128 @@ export type PointerHandlers = {
  * keeps sending moves. Returns the disposer.
  */
 export function pointer(stage: HTMLElement, on: PointerHandlers): () => void {
+  handlers.set(stage, on);
   let tm = 0;
   const pt = (e: PointerEvent): Vec2 => {
     const r = stage.getBoundingClientRect();
     return [((e.clientX - r.left) / r.width) * 400, ((e.clientY - r.top) / r.height) * 320];
   };
-  const move = (e: PointerEvent) => { clearTimeout(tm); on.move(pt(e), e); };
+  /* a real pointer holds the stage's tour before the figure hears it, and frees it after the figure hears the leave */
+  const move = (e: PointerEvent) => { clearTimeout(tm); touring.get(stage)?.hold(); on.move(pt(e), e); };
   const down = (e: PointerEvent) => {
     clearTimeout(tm);
+    touring.get(stage)?.hold();
     if (e.pointerType !== "mouse") stage.releasePointerCapture?.(e.pointerId);
     if (on.down) on.down(pt(e), e); else on.move(pt(e), e);
   };
   const leave = (e: PointerEvent) => {
     clearTimeout(tm);
-    tm = window.setTimeout(() => on.leave(e), e.pointerType === "mouse" ? 0 : 1400);
+    tm = window.setTimeout(() => { on.leave(e); touring.get(stage)?.release(); }, e.pointerType === "mouse" ? 0 : 1400);
   };
   stage.addEventListener("pointermove", move);
   stage.addEventListener("pointerdown", down);
   stage.addEventListener("pointerleave", leave);
   return () => {
     clearTimeout(tm);
+    if (handlers.get(stage) === on) handlers.delete(stage);
     stage.removeEventListener("pointermove", move);
     stage.removeEventListener("pointerdown", down);
     stage.removeEventListener("pointerleave", leave);
+  };
+}
+
+/* ───── the tour: an unseen pointer that walks a figure's stops ───── */
+
+/** Where an unseen pointer stops: a viewBox point, or null to leave the stage. */
+export type Tour = ReadonlyArray<Vec2 | null>;
+export type TourHandle = { stop(): void };
+/** The default stops: a diamond around the centre, left, up, right, down, then a leave. */
+export const LAP: Tour = [[128, 150], [200, 118], [272, 150], [200, 206], null];
+
+const TRAVEL = 900, DWELL = 1200, REST = 1800, RESUME = 1200, STAGGER = 450;
+const GHOST = { pointerType: "ghost" } as PointerEvent;
+/** How many tours have started on the page: the stagger that keeps a page of them out of step. */
+let started = 0;
+
+/** Where a pointer heading for `p` first touches the viewBox: the ray from the centre through `p` meets the edge. */
+function entry([x, y]: Vec2): Vec2 {
+  const dx = x - 200, dy = y - 160;
+  if (!dx && !dy) return [200, 320];
+  const k = Math.min(dx ? (dx > 0 ? 200 : -200) / dx : Infinity, dy ? (dy > 0 ? 160 : -160) / dy : Infinity);
+  return [200 + dx * k, 160 + dy * k];
+}
+
+/**
+ * Walks `stops` on the figure under `stage`, calling the handlers its pointer()
+ * was given as a hand would: in from the edge, TRAVEL to each stop on EASE_LIFT,
+ * DWELL there, leave(GHOST) at a null stop and REST, then round again. A real
+ * pointer or focus on the stage holds it; when they go it waits RESUME and
+ * starts from the first stop. It is a board in the one loop: it sleeps offscreen
+ * and leaves under reduced motion. onStop(i) is called on arriving at stop i,
+ * or on leaving for a null stop i. A figure never calls this; the bench and the
+ * package do.
+ */
+export function tour(stage: HTMLElement, stops: Tour, onStop?: (index: number) => void): TourHandle {
+  let i = 0;                                            // the stop the ghost is heading to
+  let wait = RESUME + STAGGER * (started++ % 4);        // ms before the next travel begins
+  let t = -1;                                           // ms into the travel; -1 before it begins
+  let at: Vec2 | null = null;                           // where the ghost is; null when off the stage
+  let origin: Vec2 = [200, 320];                        // where the current travel began
+  let hand = false, keys = stage.contains(stage.ownerDocument.activeElement);
+  let gone = false;
+
+  const leave = () => { at = null; t = -1; handlers.get(stage)?.leave(GHOST); };
+  const tick: Tick = (dt) => {
+    if (hand || keys || !stops.length) return false;
+    if (reducedMotion()) { if (at) leave(); return false; }
+    if (wait > 0) { wait -= dt * 1000; return true; }
+    const stop = stops[i];
+    if (stop === null) {
+      if (at) leave();
+      onStop?.(i);
+      i = (i + 1) % stops.length;
+      wait = REST;
+      return true;
+    }
+    const h = handlers.get(stage);
+    if (!h) return true;                                // the figure has not called pointer() yet, or has let it go
+    if (t < 0) { origin = at ?? entry(stop); t = 0; }
+    t = Math.min(TRAVEL, t + dt * 1000);
+    const k = EASE_LIFT(t / TRAVEL);
+    at = [origin[0] + (stop[0] - origin[0]) * k, origin[1] + (stop[1] - origin[1]) * k];
+    h.move(at, GHOST);
+    if (t < TRAVEL) return true;
+    onStop?.(i);
+    i = (i + 1) % stops.length;
+    t = -1;
+    wait = DWELL;
+    return true;
+  };
+
+  /* a hand or the keyboard owns the handlers: the ghost drops where it was and says nothing until both are gone */
+  const take = () => { at = null; t = -1; };
+  const give = () => { if (hand || keys) return; i = 0; t = -1; wait = RESUME; board.wake(); };
+  const me = {
+    hold: () => { hand = true; take(); },
+    release: () => { if (!hand) return; hand = false; give(); },
+  };
+  const focusIn = () => { keys = true; take(); };
+  const focusOut = (e: FocusEvent) => { if (keys && !stage.contains(e.relatedTarget as Node | null)) { keys = false; give(); } };
+  stage.addEventListener("focusin", focusIn);
+  stage.addEventListener("focusout", focusOut);
+  touring.set(stage, me);
+  const board = register(stage, tick);
+
+  return {
+    stop: () => {
+      if (gone) return;
+      gone = true;
+      board.unregister();
+      stage.removeEventListener("focusin", focusIn);
+      stage.removeEventListener("focusout", focusOut);
+      if (touring.get(stage) === me) touring.delete(stage);
+      if (at) leave();
+    },
   };
 }
 
