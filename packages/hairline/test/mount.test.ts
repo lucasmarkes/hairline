@@ -654,3 +654,43 @@ describe("basket", () => {
   });
 });
 
+describe("play", () => {
+  it("walks the figure on its own: the read-out leaves rest, and update({ play: false }) brings it back", () => {
+    const el = host(), reads: string[] = [];
+    const f = terrain(el, { play: true, onRead: (t) => reads.push(t) });
+    let n = 0;
+    while (reads.at(-1) === "rest" && n++ < 800) frames();
+    expect(reads.at(-1)).not.toBe("rest");
+    f.update({ play: false });
+    frames(60);
+    expect(reads.at(-1)).toBe("rest");
+    f.destroy();
+  });
+
+  it("update with the same play value does not restart the tour", () => {
+    const el = host(), reads: string[] = [];
+    const f = terrain(el, { play: true, onRead: (t) => reads.push(t) });
+    let n = 0;
+    while (reads.at(-1) === "rest" && n++ < 800) frames();
+    f.update({ play: true, intensity: 0.7 });
+    frames(5);
+    expect(reads.at(-1)).not.toBe("rest");
+    f.destroy();
+  });
+
+  it("plays only for true", () => {
+    const el = host(), reads: string[] = [];
+    const f = terrain(el, { play: 1 as unknown as boolean, onRead: (t) => reads.push(t) });
+    frames(800);
+    expect(reads).toEqual(["rest"]);
+    f.destroy();
+  });
+
+  it("destroy stops the tour with the figure", () => {
+    const f = terrain(host(), { play: true });
+    frames(10);
+    f.destroy();
+    expect(pending()).toBe(0);
+  });
+});
+

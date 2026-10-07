@@ -1,5 +1,5 @@
 import { inject } from "./core/styles";
-import type { FigureMount, Readout } from "./core/stage";
+import { LAP, tour, type FigureMount, type Readout, type Tour, type TourHandle } from "./core/stage";
 import { parameter, type FigureId } from "./intensity";
 
 /**
@@ -21,6 +21,12 @@ export type HairlineOptions = {
   label?: string;
   /** The figure's caption, each time it changes. Called once at mount with the rest caption. */
   onRead?: (text: string) => void;
+  /**
+   * Walks the figure through its answer on its own, in a loop, until the
+   * pointer or focus arrives; it resumes after they leave. Only `true` plays.
+   * Under prefers-reduced-motion the figure rests. Default false.
+   */
+  play?: boolean;
 };
 
 export type Figure = {
@@ -40,6 +46,8 @@ export type Spec = {
   engine: FigureMount;
   /** Operable from the keyboard: a focusable group with a live region, not an image. */
   focusable?: boolean;
+  /** Where play stops, in viewBox units; null leaves the stage. LAP when unset. */
+  tour?: Tour;
 };
 
 const NS = "http://www.w3.org/2000/svg";
@@ -108,6 +116,8 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
   };
 
   let value = parameter(spec.id, opts.intensity);
+  /* the tour registers before the engine, so its board ticks first in a frame: the ghost moves, then the engine draws the answer */
+  let playing: TourHandle | null = opts.play === true ? tour(el, spec.tour ?? LAP) : null;
   const engine = spec.engine({ stage: el, svg, read }, value);
   if (text === null) read.textContent = spec.rest;
 
@@ -116,6 +126,8 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
     if (dead) return;
     dead = true;
     if (mounted.get(el) === destroy) mounted.delete(el);
+    playing?.stop();
+    playing = null;
     engine.destroy();
     svg.remove();
     live?.remove();
@@ -135,6 +147,11 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
       }
       const v = parameter(spec.id, opts.intensity);
       if (v !== value) { value = v; engine.set(v); }
+      const play = opts.play === true;
+      if (play !== !!playing) {
+        playing?.stop();
+        playing = play ? tour(el, spec.tour ?? LAP) : null;
+      }
       dress();
     },
     destroy,
