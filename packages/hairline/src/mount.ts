@@ -1,5 +1,5 @@
 import { inject } from "./core/styles";
-import { LAP, tour, type FigureMount, type Readout, type Tour, type TourHandle } from "./core/stage";
+import { LAP, tour, type FigureHandle, type FigureMount, type Readout, type Tour, type TourHandle } from "./core/stage";
 import { parameter, type FigureId } from "./intensity";
 
 /**
@@ -103,13 +103,15 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
 
   /* the read-out: engines write it every frame, so only a change goes any further */
   let text: string | null = null;
+  let playing: TourHandle | null = null;
   const read: Readout = {
     get textContent() { return text; },
     set textContent(value) {
       const next = value ?? "";
       if (next === text) return;
       text = next;
-      if (live) live.textContent = next;
+      /* a playing figure says only what a person did: the tour's stops stay out of the live region, the rest caption always goes in */
+      if (live && live.textContent !== next && (!playing || next === spec.rest || el.matches(":hover, :focus-within"))) live.textContent = next;
       const fn = opts.onRead;
       if (typeof fn === "function") try { fn(next); } catch (err) { report(err); }
     },
@@ -117,8 +119,9 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
 
   let value = parameter(spec.id, opts.intensity);
   /* the tour registers before the engine, so its board ticks first in a frame: the ghost moves, then the engine draws the answer */
-  let playing: TourHandle | null = opts.play === true ? tour(el, spec.tour ?? LAP) : null;
-  const engine = spec.engine({ stage: el, svg, read }, value);
+  playing = opts.play === true ? tour(el, spec.tour ?? LAP) : null;
+  let engine: FigureHandle;
+  try { engine = spec.engine({ stage: el, svg, read }, value); } catch (err) { playing?.stop(); throw err; }
   if (text === null) read.textContent = spec.rest;
 
   let dead = false;

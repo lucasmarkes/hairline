@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { frames, host, observers, pending } from "./dom";
 import { basket, branches, cabinet, dish, drawer, elevator, exploded, keyboard, laptop, lockers, loupe, padlock, patch, phone, phosphor, plot, plug, query, rail, riffle, router, sieve, slow, terminal, terrain, turntable, vault } from "../src/index";
 import { css } from "../src/core/styles";
+import { create } from "../src/mount";
 
 const ALL = { riffle, terrain, exploded, phosphor, slow, turntable, keyboard, elevator, phone, laptop, terminal, cabinet, branches, vault, lockers, padlock, patch, dish, router, loupe, sieve, rail, plug, query, drawer, basket, plot };
 const key = (el: Element, k: string) => el.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
@@ -690,6 +691,63 @@ describe("play", () => {
     const f = terrain(host(), { play: true });
     frames(10);
     f.destroy();
+    expect(pending()).toBe(0);
+  });
+
+  it("update({ play: true }) starts the tour on a figure mounted without it", () => {
+    const el = host(), reads: string[] = [];
+    const f = terrain(el, { onRead: (t) => reads.push(t) });
+    frames(800);
+    expect(reads).toEqual(["rest"]);
+    f.update({ play: true });
+    let n = 0;
+    while (reads.at(-1) === "rest" && n++ < 800) frames();
+    expect(reads.at(-1)).not.toBe("rest");
+    f.destroy();
+  });
+
+  it("a playing Riffle keeps quiet in its live region while it walks itself; the keyboard and a hand on it still speak there", () => {
+    const el = host(), reads: string[] = [];
+    const f = riffle(el, { play: true, onRead: (t) => reads.push(t) });
+    const live = el.querySelector("[data-hairline-live]")!;
+    const said = new Set<string | null>();
+    for (let i = 0; i < 1500; i++) { frames(); said.add(live.textContent); }
+    /* 25 s: the tour walked the cards, the caption followed, the live region did not */
+    expect(new Set(reads).size).toBeGreaterThan(2);
+    expect([...said]).toEqual(["rest"]);
+
+    el.focus();
+    key(el, "Escape");
+    key(el, "ArrowLeft");
+    expect(live.textContent).toBe("01");
+    el.blur();
+    expect(live.textContent).toBe("rest");
+
+    /* jsdom never matches :hover, so a hand over the figure is stood in for */
+    vi.spyOn(el, "matches").mockImplementation((s: string) => s.includes(":hover"));
+    el.dispatchEvent(new PointerEvent("pointermove", { pointerType: "mouse", pointerId: 1, bubbles: true, clientX: 150, clientY: 120 }));
+    frames(30);
+    expect(live.textContent).not.toBe("rest");
+    expect(live.textContent).toBe(reads.at(-1));
+    f.destroy();
+  });
+
+  it("with play off the live region follows every caption, a hand or not", () => {
+    const el = host(), reads: string[] = [];
+    const f = riffle(el, { onRead: (t) => reads.push(t) });
+    const live = el.querySelector("[data-hairline-live]")!;
+    el.dispatchEvent(new PointerEvent("pointermove", { pointerType: "mouse", pointerId: 1, bubbles: true, clientX: 150, clientY: 120 }));
+    frames(30);
+    expect(reads.at(-1)).not.toBe("rest");
+    expect(live.textContent).toBe(reads.at(-1));
+    f.destroy();
+  });
+
+  it("an engine that throws at mount leaves no tour behind", () => {
+    const boom = new Error("engine bug");
+    const el = host();
+    expect(() => create({ id: "terrain", label: "x", rest: "rest", engine: () => { throw boom; } }, el, { play: true })).toThrow(boom);
+    frames(5);
     expect(pending()).toBe(0);
   });
 });
