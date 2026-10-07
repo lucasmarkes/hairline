@@ -87,3 +87,4 @@ Not a rule of the study, but every figure shares it.
 - The silhouette must read at 240px wide. Past a hundred or so solids, or with parts under ten viewBox units, it will not.
 - `mount` keeps no state outside itself, and `destroy` leaves the svg empty and nothing running: collect tear-down in `disposer()` and return `bag.dispose`.
 - At most 200 lines. A longer figure is usually two ideas.
+- The tour is three to six viewBox points, or `null` to leave. Pick stops on different parts, in the order a hand would reach them, and end with `null` so the lap returns to rest.

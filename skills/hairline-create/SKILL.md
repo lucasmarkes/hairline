@@ -16,7 +16,7 @@ Every file named below is in this skill's folder. The figure and the page are wr
 
 Read `concepts.md`. It has a section for an empty state and one for a figure drawn from a mark. Then offer two or three concepts, one line each:
 
-> **Name.** The object. What the pointer does to it. What the read-out says.
+> **Name.** The object. What the pointer does to it. What the read-out says. Where the tour stops.
 
 Wait for the person to pick. Skip this step only when they arrived with the object and the gesture already chosen. If there is nobody to ask, take the concept with the strongest rest pose and say which you took.
 
@@ -27,11 +27,12 @@ One figure, one idea. A concept that needs a label to be understood is not a con
 1. Read `rules.md`. The ten rules are not advice: a figure that breaks one is not finished.
 2. Read the index at the top of `kernel.js`: the comment under the hash line, down to `var HL`. It lists everything you may call. Do not read the code under it.
 3. Read the example nearer your concept: `examples/terrain.js` for a continuous field, `examples/riffle.js` for discrete items.
-4. Write the figure as `<name>.js` in the person's working directory, in the shape of the examples: take what you need from `HL`, define `mount({ stage, svg, read }, value)` returning `{ set, destroy }`, and end the file with `hairline({ name, means, rules, range, mount })`.
+4. Write the figure as `<name>.js` in the person's working directory, in the shape of the examples: take what you need from `HL`, define `mount({ stage, svg, read }, value)` returning `{ set, destroy }`, and end the file with `hairline({ name, means, rules, range, tour, mount })`.
    - `name`: lowercase, one word or hyphenated.
    - `means`: one sentence, 140 characters at most, saying what the figure shows. It is the line under the stage.
    - `rules`: the numbers of the rules this figure leans on most.
    - `range`: the one number the slider drives, at intensity 0, 0.5 and 1. The middle one is the default, and the three move one way. `mount`'s `value`, and the `value` that `set(value)` gets when the slider moves, is this number: the figure's own, read on `range`, not 0 to 1.
+   - `tour`: the three to six viewBox points the unseen pointer visits when the page plays, or `null` to leave; the lap a stranger sees with no hand on the page. Literal `[x, y]` numbers, at least one of them a point. The figure never plays itself: the page's play button and the package do.
 5. Assemble it: `node build.mjs <name>.js` writes `hairline-<name>.html`, and so does each run of `look.mjs` in step 3. Without Node, copy `bench.html` and put the contents of `kernel.js` where `/*KERNEL*/` is and your figure where `/*FIGURE*/` is, by file operation, changing nothing else.
 
 ## 3. Check
@@ -49,11 +50,14 @@ Publish `hairline-<name>.html` as an artifact if you can. If you cannot, leave t
 
 - the metaphor: what the object is, and what the pointer does to it;
 - the rules it leans on;
+- the tour: where it stops, in order;
 - anything you could not verify (no Node, no browser), plainly.
+
+Then ask the person to press play on the page, or open it with `?play=1`, and say whether the lap tells the figure's story. If there is nobody to ask, say the tour was not judged.
 
 ## 5. Adjust
 
-When the person asks for a change, edit only `<name>.js`, then run `look.mjs` again and read the new sheet. The tenth version is held to the same bar as the first.
+When the person asks for a change, edit only `<name>.js`, then run `look.mjs` again and read the new sheet. The tenth version is held to the same bar as the first. A change to the lap is a change to `tour` alone.
 
 ## What goes wrong
 
@@ -68,4 +72,5 @@ When the person asks for a change, edit only `<name>.js`, then run `look.mjs` ag
 | leaving rest flat, empty, or symmetric because that was easy | compose it: rest is the thumbnail (rule 05) |
 | stamping a mark on a box to say whose it is | build the mark as the object, or leave it out (`concepts.md`, "From a mark") |
 | editing the kernel or the bench to make something work | the figure is wrong; change the figure |
+| making the tour visit every part in turn | three stops that each show a different answer, then a leave: a lap is a sentence, not an inventory |
 | letting in a second idea | cut it: one figure, one idea |
