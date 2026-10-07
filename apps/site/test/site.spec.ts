@@ -312,7 +312,7 @@ test("Get started leads to the docs, whose quick start pastes three ways and cop
   await expect(quick.getByRole("tabpanel")).toContainText("https://esm.sh/@lucasmarkes/hairline");
   await quick.getByRole("button", { name: "Copy code" }).click();
   expect(await page.evaluate(() => navigator.clipboard.readText())).toMatch(/^<div id="figure"/);
-  await expect(page.locator("#options [data-options] tbody tr td:first-child")).toHaveText(["intensity", "theme", "label", "onRead"]);
+  await expect(page.locator("#options [data-options] tbody tr td:first-child")).toHaveText(["intensity", "theme", "label", "onRead", "play"]);
 });
 
 test("llms.txt and the registry item are served", async ({ request }) => {

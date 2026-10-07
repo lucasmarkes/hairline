@@ -67,6 +67,6 @@ export const FOLDER = "What you install is one folder of small text files. There
 
 export const USE: string[] = [
   "Type the command with an idea. If you already have the metaphor, say it, and the concepts step is skipped.",
-  "Out comes hairline-<name>.html: one file with no dependencies that opens from disk, holding the figure, an intensity slider and a theme switch.",
+  "Out comes hairline-<name>.html: one file with no dependencies that opens from disk, holding the figure, an intensity slider, a theme switch and a play button that walks its tour.",
   "It runs on any agent that reads skills: Claude Code, Cursor, Codex and others.",
 ];

@@ -18,7 +18,7 @@ export function llms(base: string): string {
   const out: string[] = [
     "# hairline",
     "",
-    `> ${PACKAGE}: ${COUNT} isometric line figures that answer the pointer. SVG, no dependencies, ESM only. A function per figure, and a React component per figure. Every figure takes the same four options.`,
+    `> ${PACKAGE}: ${COUNT} isometric line figures that answer the pointer. SVG, no dependencies, ESM only. A function per figure, and a React component per figure. Every figure takes the same five options.`,
     "",
     "## Install",
     "",

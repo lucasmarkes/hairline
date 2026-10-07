@@ -51,7 +51,7 @@ export default async function Docs() {
         <header className="hero-rise">
           <h1 className="col-h1" style={at(0)}>{cap(COUNT)} figures, one set of options.</h1>
           <p className="col-lede" style={at(1)}>
-            Every figure takes the same four options and draws itself in SVG, with no dependencies. Install the package, paste a figure, and turn <code className="doc-code">intensity</code> up or down.
+            Every figure takes the same five options and draws itself in SVG, with no dependencies. Install the package, paste a figure, and turn <code className="doc-code">intensity</code> up or down.
           </p>
         </header>
         <GettingStarted commands={install(SITE)} size={tiny()} quickstart={quickstart} empty={empty} />
