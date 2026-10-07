@@ -127,6 +127,12 @@ const BROKEN: [id: string, why: string, figure: string, change?: (page: string) 
   ["declare", "a range that turns back", terrain.replace("range: [1.5, 3, 5]", "range: [1.5, 5, 3]")],
   ["declare", "a rule that does not exist", terrain.replace("rules: [1, 3, 5, 9]", "rules: [1, 11]")],
   ["declare", "no declaration", terrain.replace(/hairline\(\{[\s\S]*$/, "")],
+  ["tour", "no tour", terrain.replace(/\n {2}tour: .*\n/, "\n")],
+  ["tour", "two stops", terrain.replace(/tour: \[.*\],/, "tour: [[128, 150], null],")],
+  ["tour", "seven stops", terrain.replace(/tour: \[.*\],/, "tour: [[10, 10], [20, 20], [30, 30], [40, 40], [50, 50], [60, 60], null],")],
+  ["tour", "a stop outside the viewBox", terrain.replace("[272, 150]", "[500, 100]")],
+  ["tour", "every stop null", terrain.replace(/tour: \[.*\],/, "tour: [null, null, null],")],
+  ["tour", "a figure that starts its own tour", plus("HL.tour(stage, [[1, 2]]);")],
   ["length", "over 200 lines", plus(Array.from({ length: 200 }, (_, i) => `const pad${i} = ${i};`).join("\n"))],  ["parse", "a const declared twice, so the module never loads", plus("const twice = 1;\nconst twice = 2;")],
 ];
 

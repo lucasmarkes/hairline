@@ -16,7 +16,8 @@
  *   hit       input only through HL.pointer; nothing measured on screen (rule 01)
  *   readout   it writes read.textContent
  *   handle    mount returns { set, destroy }
- *   declare   the file ends with hairline({ name, means, rules, range, mount })
+ *   declare   the file ends with hairline({ name, means, rules, range, tour, mount })
+ *   tour      hairline() gives tour: three to six stops, each [x, y] in the viewBox or null, one of them a point; the figure never calls HL.tour
  *   length    at most 200 lines
  */
 import { spawnSync } from "node:child_process";
@@ -134,7 +135,7 @@ function tweens(shape) {
 
 /** The declaration at the end of the file, read as text. */
 function declared(code) {
-  const say = (what) => `declare: the file must end with hairline({ name, means, rules, range, mount }). ${what}`;
+  const say = (what) => `declare: the file must end with hairline({ name, means, rules, range, tour, mount }). ${what}`;
   const m = /\bhairline\s*\(\s*\{([\s\S]*?)\}\s*\)\s*;?\s*$/.exec(code.trimEnd());
   if (!m) return [say("That call is missing, or is not the last statement.")];
   const d = m[1], wrong = [];
@@ -150,6 +151,42 @@ function declared(code) {
   if (!oneWay) wrong.push("range (three numbers that move one way: the figure's value at intensity 0, 0.5 and 1)");
   if (!/\bmount\b/.test(d)) wrong.push("mount");
   return wrong.length ? [say(`Wrong or missing: ${wrong.join("; ")}.`)] : [];
+}
+
+/**
+ * The tour: three to six stops in the hairline() call, each a literal [x, y]
+ * inside the viewBox or null, at least one a point. The figure's own code never
+ * calls HL.tour; the bench and the package do.
+ */
+function toured(code, shape) {
+  const out = [];
+  if (/\bHL\.tour\s*\(/.test(shape)) out.push("tour: the figure calls HL.tour itself. Declare tour in hairline() and let the bench play it.");
+  const call = /\bhairline\s*\(\s*\{([\s\S]*?)\}\s*\)\s*;?\s*$/.exec(code);
+  if (!call) return out;                                   // declare already said so
+  const body = call[1];
+  const open = /\btour:\s*\[/.exec(body);
+  if (!open) { out.push("tour: the call gives no tour. Add tour: [[x, y], ..., null], three to six stops that walk the figure through its answer."); return out; }
+  let depth = 0, end = -1;
+  for (let i = open.index + open[0].length - 1; i < body.length; i++) {
+    if (body[i] === "[") depth++;
+    else if (body[i] === "]" && --depth === 0) { end = i; break; }
+  }
+  if (end < 0) { out.push("tour: the tour's brackets do not close."); return out; }
+  const inner = body.slice(open.index + open[0].length, end);
+  const items = inner.match(/\[\s*([^\[\]]*)\]|null|[^\s,\[\]]+/g) ?? [];
+  const bad = [];
+  let points = 0;
+  for (const item of items) {
+    if (item === "null") continue;
+    const m = /^\[\s*(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)\s*\]$/.exec(item);
+    const x = m && Number(m[1]), y = m && Number(m[2]);
+    if (!m || x < 0 || x > 400 || y < 0 || y > 320) { bad.push(item.replace(/\s+/g, " ")); continue; }
+    points++;
+  }
+  if (bad.length) out.push(`tour: each stop is a literal [x, y] with x in 0..400 and y in 0..320, or null. Not: ${bad.join(", ")}.`);
+  if (items.length < 3 || items.length > 6) out.push(`tour: ${items.length} stop${items.length === 1 ? "" : "s"}. A tour has three to six: enough to show the answer, few enough to stay a sentence.`);
+  if (!bad.length && !points) out.push("tour: every stop is null. At least one stop is a point on the figure.");
+  return out;
 }
 
 /**
@@ -196,6 +233,7 @@ export function validate(input) {
   for (const [id, re, say] of NEED) if (!re.test(code)) out.push(`${id}: ${say}`);
   out.push(...tweens(shape));
   out.push(...declared(code));
+  out.push(...toured(code, shape));
   const lines = src.split("\n").length;
   if (lines > LIMIT) out.push(`length: the figure is ${lines} lines and the limit is ${LIMIT}. A figure this long is usually two ideas: cut the concept down to one.`);
   return out;
