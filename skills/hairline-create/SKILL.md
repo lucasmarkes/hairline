@@ -18,7 +18,7 @@ Read `concepts.md`. It has a section for an empty state and one for a figure dra
 
 > **Name.** The object. What the pointer does to it. What the read-out says. Where the tour stops.
 
-Wait for the person to pick. Skip this step only when they arrived with the object and the gesture already chosen. If there is nobody to ask, take the concept with the strongest rest pose and say which you took.
+Wait for the person to pick. Offer them even when the person arrived with the object and the gesture: then every concept keeps both, and they differ in what is still open, the form the object takes and what the read-out says. If there is nobody to ask, take the concept with the strongest rest pose and say which you took.
 
 One figure, one idea. A concept that needs a label to be understood is not a concept yet.
 

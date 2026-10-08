@@ -32,6 +32,11 @@ it("SKILL.md points to every other file, and to none that is not there", () => {
   for (const [, f] of skill.matchAll(/`([\w./-]+\.(?:md|mjs|js|html))`/g)) expect(existsSync(SKILL + f), f).toBe(true);
 });
 
+it("SKILL.md always offers concepts before it draws, even when the object and the gesture came with the request", () => {
+  expect(text("SKILL.md")).toContain("Offer them even when the person arrived with the object and the gesture");
+  expect(text("SKILL.md")).not.toMatch(/Skip this step/);
+});
+
 it("rules.md has the ten rules, named as the bench names them", () => {
   const names = [...text("rules.md").matchAll(/^## (\d\d) · (\w+)/gm)].map((m) => `${m[1]} ${m[2]}`);
   const bench = /const RULES = (\[[^\]]+\]);/.exec(text("bench.html"))![1];
