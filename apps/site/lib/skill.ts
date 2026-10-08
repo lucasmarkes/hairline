@@ -19,13 +19,13 @@ export type Example = { idea: string; file: string; sha256: string; followUp?: s
 
 /** What was typed after the command, and the page the skill wrote for it. The pages are never edited. */
 export const EXAMPLES: Example[] = [
-  { idea: "a sales funnel", file: "hairline-funnel.html", sha256: "0cc23d6ae3e40a7d424e56b25f5c318760e8ae5abe82a0cafb7631c86391d982" },
-  { idea: "a rate limiter", file: "hairline-clearance.html", sha256: "bcad4048389d9049880263ad113900cc6728f6bc5770880c7524a8836728bdce" },
-  { idea: "git branches", file: "hairline-sidings.html", sha256: "de5ad4411e1b7a97049c6b74e9f4ffdb8a9dfc32b0c5367dddd585cd7dac5bf7", followUp: "The rails almost disappear and the trains read as loose blocks. Make it read as a railway at a glance." },
-  { idea: "weather over a city", file: "hairline-storm.html", sha256: "af8e3e85414d2a38421cf98b858ce1a4c1f9138cc5ba7bbf6c5b42b0205c0e60", followUp: "The cloud looks like a stack of cylinders. Make it read as a cloud at a glance." },
-  { idea: "an empty state for \"No deployments yet\", from Vercel's mark: the triangle as an upright slab hovering over a pad with its slot marked dim; the nearer the pointer, the lower it settles, until it seats. Name it vercel.", file: "hairline-vercel.html", sha256: "66f4577ec763f5ea45983cdff12ec5fdd6a6d1be7ff427023a8d35271af43d94" },
-  { idea: "an empty state for \"No agents connected\", from Mastra's mark: the spheres of the M joined by necks on a board, the lone sphere standing apart; the pointer draws it toward the others, a neck forms, stretches and lets go. Name it mastra.", file: "hairline-mastra.html", sha256: "6a7c5d3f4942428b4ce6ce02c6667eb80503ea58bd501891e3b5f9f7eeb02f5a" },
-  { idea: "an empty state for \"No pages inside\", from Notion's mark: the cube as a box with a lid, the N a relief on its front face; the pointer's height opens the lid on a spring, and the box is empty. Name it notion.", file: "hairline-notion.html", sha256: "0027a7ea3a463638d60e7d0cc3cd94402862d68895a4c9b5e036a1a3c2163583" },
+  { idea: "a sales funnel", file: "hairline-funnel.html", sha256: "1c2ad4fb6305da1ceda532da6d96f1cd3060c67d588dec2db6043920e33fc044" },
+  { idea: "a rate limiter", file: "hairline-clearance.html", sha256: "36935c2412526af4331070e5a2d350f6c0a8071156b59955e815175b7a88b34d" },
+  { idea: "git branches", file: "hairline-sidings.html", sha256: "c6844a3c0dc684237508644ef677ae8905b120b73c2af74d7abf5990775106ae", followUp: "The rails almost disappear and the trains read as loose blocks. Make it read as a railway at a glance." },
+  { idea: "weather over a city", file: "hairline-storm.html", sha256: "fe23e7a760c742bf0c68401bb2d3544f700af36865f720b39214ebde237507c0", followUp: "The cloud looks like a stack of cylinders. Make it read as a cloud at a glance." },
+  { idea: "an empty state for \"No deployments yet\", from Vercel's mark: the triangle as an upright slab hovering over a pad with its slot marked dim; the nearer the pointer, the lower it settles, until it seats. Name it vercel.", file: "hairline-vercel.html", sha256: "781db9ab5891183261c3ed03e1050d9fabbc9b95a2a9333425706135953dc839" },
+  { idea: "an empty state for \"No agents connected\", from Mastra's mark: the spheres of the M joined by necks on a board, the lone sphere standing apart; the pointer draws it toward the others, a neck forms, stretches and lets go. Name it mastra.", file: "hairline-mastra.html", sha256: "fa4f03c971f626296cd3a720aed23b81beeda0221652b1c560820a9c3858876a" },
+  { idea: "an empty state for \"No pages inside\", from Notion's mark: the cube as a box with a lid, the N a relief on its front face; the pointer's height opens the lid on a spring, and the box is empty. Name it notion.", file: "hairline-notion.html", sha256: "4ba5f67ee4a4c7d0a0a46757889c8264af3c6a21d285e81e6aa02e65e23f68d7" },
 ];
 
 export type Shown = Example & { name: string; means: string; prompt: string; href: string };
@@ -67,6 +67,6 @@ export const FOLDER = "What you install is one folder of small text files. There
 
 export const USE: string[] = [
   "Type the command with an idea. If you already have the metaphor, say it, and the concepts step is skipped.",
-  "Out comes hairline-<name>.html: one file with no dependencies that opens from disk, holding the figure, an intensity slider and a theme switch.",
+  "Out comes hairline-<name>.html: one file with no dependencies that opens from disk, holding the figure, an intensity slider, a theme switch and a play button that walks its tour.",
   "It runs on any agent that reads skills: Claude Code, Cursor, Codex and others.",
 ];

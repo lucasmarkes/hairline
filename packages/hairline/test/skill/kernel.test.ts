@@ -26,7 +26,9 @@ it("defines one global, HL, holding what its index lists and nothing else", () =
   const HL = new Function(`${src}\nreturn HL;`)() as Record<string, unknown>;
   const indexed = [...src.slice(0, src.indexOf("var HL")).matchAll(/^ \* {3}(\w+)/gm)].map((m) => m[1]);
   expect(indexed.slice().sort()).toEqual(Object.keys(HL).sort());
-  expect(Object.keys(HL)).toHaveLength(44);
+  expect(Object.keys(HL)).toHaveLength(46);
+  expect(typeof HL.tour).toBe("function");
+  expect(Array.isArray(HL.LAP)).toBe(true);
   expect(typeof HL.register).toBe("function");
   expect(typeof HL.EASE_LIFT).toBe("function");
 });

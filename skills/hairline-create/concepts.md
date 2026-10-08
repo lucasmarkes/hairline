@@ -35,6 +35,7 @@ Asked for an empty state (no results, nothing here yet, not found), draw the abs
 - **Rest is the whole figure.** An empty state sits small above a heading and a button, and most people never bring the pointer to it. Judge the rest pose first. The site's thumbnail is 160px, smaller than `look.mjs`'s small picture, so judge that picture as if it were two-thirds its size.
 - **Empty is not blank.** The object is all there and composed; what is missing is what it would hold. One bright mark says where to look.
 - **The read-out counts to zero.** Under the pointer it names the part and what it holds, none: `sieve 2 · 0`, `row 4 · 0`. At rest it still says `rest`.
+- **The tour may be short.** Two stops and a leave: the rest pose does most of the work, and each stop reads a part out as empty.
 
 ## From a mark
 

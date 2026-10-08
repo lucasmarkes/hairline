@@ -1,6 +1,6 @@
 {
   "name": "@lucasmarkes/hairline",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Twenty-seven isometric line figures that answer the pointer. For React and for anything with a DOM.",
   "license": "MIT",
   "type": "module",
@@ -83,18 +83,18 @@
     {
       "name": "vanilla, every figure",
       "path": "dist/index.js",
-      "limit": "34.4 kB"
+      "limit": "35.3 kB"
     },
     {
       "name": "vanilla, one figure",
       "path": "dist/index.js",
       "import": "{ terrain }",
-      "limit": "5.7 kB"
+      "limit": "6.4 kB"
     },
     {
       "name": "react, every component",
       "path": "dist/react.js",
-      "limit": "34.9 kB",
+      "limit": "35.7 kB",
       "ignore": [
         "react",
         "react/jsx-runtime"

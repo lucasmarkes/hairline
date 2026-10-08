@@ -206,3 +206,48 @@ test("the built file draws when opened from disk, narrowed and with the pointer 
   await expect(page).toHaveTitle("Hairline · terrain");
   expect(problems).toEqual([]);
 });
+
+test("the play button walks the tour and stops back at rest", async ({ page }) => {
+  await page.goto("/bench/terrain");
+  const play = page.locator("#play");
+  await expect(play).toHaveAttribute("aria-pressed", "false");
+  await play.click();
+  await expect(play).toHaveAttribute("aria-pressed", "true");
+  await expect.poll(() => read(page), { timeout: 15000 }).not.toBe("rest");
+  await play.click();
+  await expect(play).toHaveAttribute("aria-pressed", "false");
+  await expect.poll(() => read(page), { timeout: 5000 }).toBe("rest");
+});
+
+test("?play=1 starts it, and each stop is reported in order", async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as any).__stops = [];
+    let call: any;
+    Object.defineProperty(window, "hairline", {
+      configurable: true,
+      get: () => call,
+      set: (v) => { call = v; v.onStop = (i: number) => (window as any).__stops.push(i); },
+    });
+  });
+  await page.goto("/bench/terrain?play=1");
+  await expect(page.locator("#play")).toHaveAttribute("aria-pressed", "true");
+  await expect.poll(() => page.evaluate(() => (window as any).__stops.slice(0, 4)), { timeout: 20000 }).toEqual([0, 1, 2, 3]);
+});
+
+test("?at= holds the pointer over ?play=1", async ({ page }) => {
+  await page.addInitScript(() => {
+    (window as any).__stops = [];
+    let call: any;
+    Object.defineProperty(window, "hairline", {
+      configurable: true,
+      get: () => call,
+      set: (v) => { call = v; v.onStop = (i: number) => (window as any).__stops.push(i); },
+    });
+  });
+  await page.goto("/bench/terrain?play=1&at=200,160");
+  await expect(page.locator("#play")).toHaveAttribute("aria-pressed", "true");
+  await expect.poll(() => read(page)).toMatch(/^cell/);
+  await page.waitForTimeout(3000);
+  expect(await page.evaluate(() => (window as any).__stops)).toEqual([]);
+  expect(await read(page)).toMatch(/^cell/);
+});

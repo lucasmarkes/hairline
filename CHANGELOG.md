@@ -4,6 +4,17 @@ Every release of `@lucasmarkes/hairline`. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [semver](https://semver.org/).
 
+## 0.4.0 - 2026-10-07
+
+### Added
+
+- `play`, a fifth option: an unseen pointer walks the figure through its answer in a loop until the pointer or focus arrives, and resumes after they leave. Under `prefers-reduced-motion` the figure rests. In React, `<Terrain play />`.
+
+### Changed
+
+- `hairline-create`: every figure declares a `tour`, three to six stops in the viewBox, in its `hairline()` call, and `validate.mjs` requires it. The page it writes has a play button and `?play=1`, and the person is asked to judge the lap at handoff. The seven made pages on the site declare theirs.
+- Site: the catalogue's tiles walk their figures until a hand arrives, and the docs list five options.
+
 ## 0.3.0 - 2026-10-05
 
 ### Added

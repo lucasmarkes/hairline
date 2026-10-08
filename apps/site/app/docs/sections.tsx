@@ -41,7 +41,7 @@ export function GettingStarted({ commands, size, quickstart, empty }: { commands
         <Tabs tabs={quickstart} label="Quick start" />
       </Section>
       <Section id="options">
-        <p className="doc-p">Every figure takes the same four options, all optional.</p>
+        <p className="doc-p">Every figure takes the same five options, all optional.</p>
         <div className="tbl-card">
           <table className="props" data-options>
             <thead>

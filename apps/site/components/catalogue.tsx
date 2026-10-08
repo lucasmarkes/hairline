@@ -317,7 +317,7 @@ function ShelfSection({ shelf, picked, onPick }: { shelf: Shelf; picked?: string
 /**
  * One figure on its shelf. The whole tile takes a click, but the button is its name: the figure in the stage answers
  * the pointer and the keyboard itself, and Riffle's cards cannot sit inside a button. A click inside a made figure's
- * frame stays in the frame, so that tile opens from its name.
+ * frame stays in the frame, so that tile opens from its name. Every tile plays its figure until a hand arrives.
  */
 function Tile({ entry, picked, onPick }: { entry: Entry; picked: boolean; onPick: (f: Entry, from: HTMLElement | null, keyboard: boolean) => void }) {
   const button = useRef<HTMLButtonElement>(null);
@@ -325,7 +325,7 @@ function Tile({ entry, picked, onPick }: { entry: Entry; picked: boolean; onPick
   const made = entry.drawn ? undefined : entry.made;
   return (
     <div className="fig-tile" data-planned={entry.drawn || made ? undefined : ""} data-picked={picked ? "" : undefined} onClick={(event) => onPick(entry, button.current, event.detail === 0)}>
-      <div className="fig-stage">{Figure ? <Figure /> : made ? <MadeFrame src={`/skill/${made.file}?theme=light`} title={entry.summary} /> : <Ghost />}</div>
+      <div className="fig-stage">{Figure ? <Figure play /> : made ? <MadeFrame src={`/skill/${made.file}?theme=light&play=1`} title={entry.summary} /> : <Ghost />}</div>
       <div className="fig-foot">
         <button ref={button} type="button" className="fig-name" aria-label={entry.drawn || made ? undefined : `${entry.name}, planned`} aria-expanded={picked} aria-controls="figure-drawer" onClick={(event) => {
           event.stopPropagation();

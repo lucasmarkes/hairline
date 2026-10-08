@@ -16,6 +16,18 @@ const sized = (el: Element) => {
 const svg = (el: Element) => el.querySelector("svg")!.innerHTML.replace(/hl-fd\d+/g, "hl-fd");
 
 describe("components", () => {
+  it("play walks the figure, and taking it away brings the read-out back to rest", () => {
+    const reads: string[] = [];
+    const { container, rerender } = render(<Terrain play onRead={(t) => reads.push(t)} />);
+    sized(container.firstElementChild as HTMLElement);
+    let n = 0;
+    while (reads.at(-1) === "rest" && n++ < 800) frames();
+    expect(reads.at(-1)).not.toBe("rest");
+    rerender(<Terrain onRead={(t) => reads.push(t)} />);
+    frames(60);
+    expect(reads.at(-1)).toBe("rest");
+  });
+
   it("renders each figure into one div", () => {
     const { container } = render(<><Riffle /><Terrain /><Exploded /><Phosphor /><Slow /><Turntable /><Keyboard /><Elevator /><Phone /><Laptop /><Terminal /><Cabinet /><Branches /><Vault /><Lockers /><Padlock /><Patch /><Dish /><Router /><Loupe /><Sieve /><Rail /><Plug /><Query /><Drawer /><Basket /><Plot /></>);
     const ids = [...container.children].map((el) => el.getAttribute("data-hairline"));

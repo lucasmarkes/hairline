@@ -43,6 +43,7 @@
     height: 32px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px;
     background: transparent; color: var(--ink); cursor: pointer;
   }
+  #play[aria-pressed="true"] { background: var(--ink); color: var(--ground); border-color: var(--ink); }
   #means { margin: 14px 0 0; text-wrap: pretty; }
   #rules { margin: 6px 0 0; line-height: 1.6; }
   #error { margin: 12px 0 0; padding-left: 10px; border-left: 1px solid var(--ink); }
@@ -61,13 +62,15 @@
     <output id="value" for="intensity"></output>
     <span class="label">theme</span>
     <button id="theme" type="button" aria-label="Switch between the light and the dark theme"></button>
+    <span class="label">play</span>
+    <button id="play" type="button" aria-pressed="false">play</button>
   </div>
   <p id="means"></p>
   <p id="rules" class="label"></p>
   <p id="error" role="alert" hidden></p>
 </main>
 <script id="hl-kernel">
-/* hairline kernel sha256:8e2abcbdf63c7755195ee942c39e9c8ea6a539d1147e986dd1c153559121f075 */
+/* hairline kernel sha256:3a19aa2640ba8c6c306184d05fddfbd4f3323a6ebd9217dd3cbb38e9db74991c */
 /*
  * HL: everything a figure may call. Read this index; the code under it is the
  * package's src/core, unchanged, and a figure should not need to read it.
@@ -138,6 +141,8 @@
  * The bench's business, not a figure's
  *   css(lightDark)
  *   inject(root)
+ *   tour(stage, stops, onStop)             an unseen pointer that walks the stops, [x, y] in viewBox units or null to leave, and gives way to a real one; onStop(i) on each arrival; returns {stop}
+ *   LAP                                    the default stops: a diamond around the centre, then a leave
  *
  * Classes, on path, polygon, ellipse and line. They are the whole palette; a
  * figure sets no colour, width or fill of its own.
@@ -171,6 +176,7 @@ var HL = (() => {
   __export(kernel_exports, {
     Cam: () => Cam,
     EASE_LIFT: () => EASE_LIFT,
+    LAP: () => LAP,
     bezier: () => bezier,
     circ: () => circ,
     clamp: () => clamp,
@@ -209,6 +215,7 @@ var HL = (() => {
     spring: () => spring,
     stepS: () => stepS,
     tdone: () => tdone,
+    tour: () => tour,
     tset: () => tset,
     tval: () => tval,
     tween: () => tween,
@@ -465,7 +472,14 @@ var HL = (() => {
     last = now;
     let any = false;
     for (const b of boards.slice()) if (b.vis && b.awake) {
-      b.awake = !!b.tick(dt, now);
+      try {
+        b.awake = !!b.tick(dt, now);
+      } catch (err) {
+        b.awake = false;
+        setTimeout(() => {
+          throw err;
+        });
+      }
       any = any || b.awake;
     }
     raf = any ? requestAnimationFrame(frame) : 0;
@@ -485,10 +499,12 @@ var HL = (() => {
     if (io) return;
     io = new IntersectionObserver((es) => {
       for (const e of es) {
-        const b = byStage.get(e.target);
-        if (!b) continue;
-        b.vis = e.isIntersecting;
-        if (b.vis) wake(b);
+        const set = byStage.get(e.target);
+        if (!set) continue;
+        for (const b of set) {
+          b.vis = e.isIntersecting;
+          if (b.vis) wake(b);
+        }
       }
     }, { rootMargin: "80px" });
     rm = matchMedia("(prefers-reduced-motion: reduce)");
@@ -507,8 +523,15 @@ var HL = (() => {
     start();
     const b = { stage, tick, vis: false, awake: true };
     boards.push(b);
-    byStage.set(stage, b);
-    io.observe(stage);
+    const peers = byStage.get(stage);
+    if (peers) {
+      for (const p of peers) b.vis = p.vis;
+      peers.add(b);
+      if (b.vis) wake(b);
+    } else {
+      byStage.set(stage, /* @__PURE__ */ new Set([b]));
+      io.observe(stage);
+    }
     tick(0, performance.now());
     let gone = false;
     return {
@@ -519,15 +542,22 @@ var HL = (() => {
         if (gone) return;
         gone = true;
         boards = boards.filter((x) => x !== b);
-        if (byStage.get(stage) === b) {
-          byStage.delete(stage);
-          io?.unobserve(stage);
+        const set = byStage.get(stage);
+        if (set) {
+          set.delete(b);
+          if (!set.size) {
+            byStage.delete(stage);
+            io?.unobserve(stage);
+          }
         }
         if (!boards.length) stop();
       }
     };
   }
+  var handlers = /* @__PURE__ */ new WeakMap();
+  var touring = /* @__PURE__ */ new WeakMap();
   function pointer(stage, on) {
+    handlers.set(stage, on);
     let tm = 0;
     const pt = (e) => {
       const r = stage.getBoundingClientRect();
@@ -535,26 +565,142 @@ var HL = (() => {
     };
     const move = (e) => {
       clearTimeout(tm);
+      touring.get(stage)?.hold();
       on.move(pt(e), e);
     };
     const down = (e) => {
       clearTimeout(tm);
+      touring.get(stage)?.hold();
       if (e.pointerType !== "mouse") stage.releasePointerCapture?.(e.pointerId);
       if (on.down) on.down(pt(e), e);
       else on.move(pt(e), e);
     };
     const leave = (e) => {
       clearTimeout(tm);
-      tm = window.setTimeout(() => on.leave(e), e.pointerType === "mouse" ? 0 : 1400);
+      tm = window.setTimeout(() => {
+        on.leave(e);
+        touring.get(stage)?.release();
+      }, e.pointerType === "mouse" ? 0 : 1400);
     };
     stage.addEventListener("pointermove", move);
     stage.addEventListener("pointerdown", down);
     stage.addEventListener("pointerleave", leave);
     return () => {
       clearTimeout(tm);
+      if (handlers.get(stage) === on) handlers.delete(stage);
       stage.removeEventListener("pointermove", move);
       stage.removeEventListener("pointerdown", down);
       stage.removeEventListener("pointerleave", leave);
+    };
+  }
+  var LAP = [[128, 150], [200, 118], [272, 150], [200, 206], null];
+  var TRAVEL = 900;
+  var DWELL = 1200;
+  var REST = 1800;
+  var RESUME = 1200;
+  var STAGGER = 450;
+  var GHOST = { pointerType: "ghost" };
+  var started = 0;
+  function entry([x, y]) {
+    const dx = x - 200, dy = y - 160;
+    if (!dx && !dy) return [200, 320];
+    const k = Math.min(dx ? (dx > 0 ? 200 : -200) / dx : Infinity, dy ? (dy > 0 ? 160 : -160) / dy : Infinity);
+    return [200 + dx * k, 160 + dy * k];
+  }
+  function tour(stage, stops, onStop) {
+    let i = 0;
+    let wait = RESUME + STAGGER * (started++ % 4);
+    let t = -1;
+    let at = null;
+    let origin = [200, 320];
+    let hand = false, keys = stage.contains(stage.ownerDocument.activeElement);
+    let gone = false;
+    const leave = () => {
+      at = null;
+      t = -1;
+      handlers.get(stage)?.leave(GHOST);
+    };
+    const tick = (dt) => {
+      if (hand || keys || !stops.length) return false;
+      if (reducedMotion()) {
+        if (at) leave();
+        return false;
+      }
+      if (wait > 0) {
+        wait -= dt * 1e3;
+        return true;
+      }
+      const stop2 = stops[i];
+      if (stop2 === null) {
+        if (at) leave();
+        onStop?.(i);
+        i = (i + 1) % stops.length;
+        wait = REST;
+        return true;
+      }
+      const h = handlers.get(stage);
+      if (!h) return true;
+      if (t < 0) {
+        origin = at ?? entry(stop2);
+        t = 0;
+      }
+      t = Math.min(TRAVEL, t + dt * 1e3);
+      const k = EASE_LIFT(t / TRAVEL);
+      at = [origin[0] + (stop2[0] - origin[0]) * k, origin[1] + (stop2[1] - origin[1]) * k];
+      h.move(at, GHOST);
+      if (t < TRAVEL) return true;
+      onStop?.(i);
+      i = (i + 1) % stops.length;
+      t = -1;
+      wait = DWELL;
+      return true;
+    };
+    const take = () => {
+      at = null;
+      t = -1;
+    };
+    const give = () => {
+      if (hand || keys) return;
+      i = 0;
+      t = -1;
+      wait = RESUME;
+      board.wake();
+    };
+    const me = {
+      hold: () => {
+        hand = true;
+        take();
+      },
+      release: () => {
+        if (!hand) return;
+        hand = false;
+        give();
+      }
+    };
+    const focusIn = () => {
+      keys = true;
+      take();
+    };
+    const focusOut = (e) => {
+      if (keys && !stage.contains(e.relatedTarget)) {
+        keys = false;
+        give();
+      }
+    };
+    stage.addEventListener("focusin", focusIn);
+    stage.addEventListener("focusout", focusOut);
+    touring.set(stage, me);
+    const board = register(stage, tick);
+    return {
+      stop: () => {
+        if (gone) return;
+        gone = true;
+        board.unregister();
+        stage.removeEventListener("focusin", focusIn);
+        stage.removeEventListener("focusout", focusOut);
+        if (touring.get(stage) === me) touring.delete(stage);
+        if (at) leave();
+      }
     };
   }
   function disposer() {
@@ -705,6 +851,17 @@ var HL = (() => {
     slider.addEventListener("input", () => { show(); handle.set(at(Number(slider.value))); });
     window.hairline.figure = handle;
 
+    /* play: an unseen pointer walks the figure's tour (or HL.LAP) until a hand arrives; ?play=1 starts it on load */
+    const play = $("play");
+    window.hairline.playing = null;
+    play.addEventListener("click", () => {
+      const was = play.getAttribute("aria-pressed") === "true";
+      if (was) { window.hairline.playing.stop(); window.hairline.playing = null; }
+      else window.hairline.playing = HL.tour(stage, figure.tour || HL.LAP, (i) => { if (window.hairline.onStop) window.hairline.onStop(i); });
+      play.setAttribute("aria-pressed", String(!was));
+    });
+    if (params.get("play") === "1") play.click();
+
     /* ?at=200,160 holds the pointer at a viewBox point, for a picture of the answer without a mouse */
     const p = (params.get("at") || "").split(",").map(Number);
     if (p.length === 2 && p.every(Number.isFinite)) {
@@ -841,6 +998,7 @@ hairline({
   means: "No deployments yet: the triangle hovers over its empty slot, and the nearer the pointer, the lower it settles, until it seats.",
   rules: [1, 3, 5, 9],
   range: [70, 110, 160],
+  tour: [[80, 120], [160, 120], [200, 120], [200, 160], null],
   mount,
 });
 </script>

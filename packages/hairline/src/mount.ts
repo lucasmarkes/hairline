@@ -1,5 +1,5 @@
 import { inject } from "./core/styles";
-import type { FigureMount, Readout } from "./core/stage";
+import { LAP, tour, type FigureHandle, type FigureMount, type Readout, type Tour, type TourHandle } from "./core/stage";
 import { parameter, type FigureId } from "./intensity";
 
 /**
@@ -21,6 +21,12 @@ export type HairlineOptions = {
   label?: string;
   /** The figure's caption, each time it changes. Called once at mount with the rest caption. */
   onRead?: (text: string) => void;
+  /**
+   * Walks the figure through its answer on its own, in a loop, until the
+   * pointer or focus arrives; it resumes after they leave. Only `true` plays.
+   * Under prefers-reduced-motion the figure rests. Default false.
+   */
+  play?: boolean;
 };
 
 export type Figure = {
@@ -40,6 +46,8 @@ export type Spec = {
   engine: FigureMount;
   /** Operable from the keyboard: a focusable group with a live region, not an image. */
   focusable?: boolean;
+  /** Where play stops, in viewBox units; null leaves the stage. LAP when unset. */
+  tour?: Tour;
 };
 
 const NS = "http://www.w3.org/2000/svg";
@@ -95,20 +103,25 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
 
   /* the read-out: engines write it every frame, so only a change goes any further */
   let text: string | null = null;
+  let playing: TourHandle | null = null;
   const read: Readout = {
     get textContent() { return text; },
     set textContent(value) {
       const next = value ?? "";
       if (next === text) return;
       text = next;
-      if (live) live.textContent = next;
+      /* a playing figure says only what a person did: the tour's stops stay out of the live region, the rest caption always goes in */
+      if (live && live.textContent !== next && (!playing || next === spec.rest || el.matches(":hover, :focus-within"))) live.textContent = next;
       const fn = opts.onRead;
       if (typeof fn === "function") try { fn(next); } catch (err) { report(err); }
     },
   };
 
   let value = parameter(spec.id, opts.intensity);
-  const engine = spec.engine({ stage: el, svg, read }, value);
+  /* the tour registers before the engine, so its board ticks first in a frame: the ghost moves, then the engine draws the answer */
+  playing = opts.play === true ? tour(el, spec.tour ?? LAP) : null;
+  let engine: FigureHandle;
+  try { engine = spec.engine({ stage: el, svg, read }, value); } catch (err) { playing?.stop(); throw err; }
   if (text === null) read.textContent = spec.rest;
 
   let dead = false;
@@ -116,6 +129,8 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
     if (dead) return;
     dead = true;
     if (mounted.get(el) === destroy) mounted.delete(el);
+    playing?.stop();
+    playing = null;
     engine.destroy();
     svg.remove();
     live?.remove();
@@ -135,6 +150,11 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
       }
       const v = parameter(spec.id, opts.intensity);
       if (v !== value) { value = v; engine.set(v); }
+      const play = opts.play === true;
+      if (play !== !!playing) {
+        playing?.stop();
+        playing = play ? tour(el, spec.tour ?? LAP) : null;
+      }
       dress();
     },
     destroy,

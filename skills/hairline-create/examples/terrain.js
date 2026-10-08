@@ -103,5 +103,6 @@ hairline({
   means: "A field of pillars rises under the pointer and falls off with distance.",
   rules: [1, 3, 5, 9],
   range: [1.5, 3, 5],
+  tour: [[128, 150], [272, 150], [200, 206], null],
   mount,
 });

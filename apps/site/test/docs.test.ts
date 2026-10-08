@@ -17,7 +17,7 @@ import { CDN, CSS, EMPTY, QUICKSTART, REACT, REACT_SIGNATURE, VANILLA, VANILLA_S
 /** The docs describe the package, and these check that nothing was written by hand around it. */
 
 /* a key added to or taken from HairlineOptions fails the typecheck here, before the table can drift */
-const KEYS = { intensity: true, theme: true, label: true, onRead: true } satisfies Record<keyof HairlineOptions, true>;
+const KEYS = { intensity: true, theme: true, label: true, onRead: true, play: true } satisfies Record<keyof HairlineOptions, true>;
 
 describe("the figures", () => {
   it("are the package's, each with a function and a component", () => {
@@ -31,7 +31,7 @@ describe("the figures", () => {
 });
 
 describe("the options table", () => {
-  it("has the four keys of HairlineOptions, in that order", () => {
+  it("has the five keys of HairlineOptions, in that order", () => {
     expect(OPTIONS.map((r) => r.name)).toEqual(Object.keys(KEYS));
   });
 
@@ -64,12 +64,13 @@ describe("the theme's CSS", () => {
 });
 
 describe("the signatures", () => {
-  it("list the component's four options with their types, read from the options table", () => {
+  it("list the component's five options with their types, read from the options table", () => {
     expect(REACT_SIGNATURE).toBe(`<Terrain
   intensity?: number
   theme?: "auto" | "light" | "dark"
   label?: string
   onRead?: (text: string) => void
+  play?: boolean
   {...divProps}
 />
 `);
@@ -150,7 +151,7 @@ describe("/llms.txt", () => {
     for (const n of INTENSITY[doc.id]) expect(scale(doc.id, doc.parameter)).toContain(String(n));
   });
 
-  it("documents the four options, every theme property and the registry item", () => {
+  it("documents the five options, every theme property and the registry item", () => {
     for (const row of OPTIONS) expect(text).toContain(`- \`${row.name}\``);
     for (const key of ["plate", "hi", "edge", "mid", "lo", "stroke"]) expect(text).toContain(`--hairline-${key}`);
     expect(text).toContain("https://example.test/r/hairline.json");

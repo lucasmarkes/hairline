@@ -269,3 +269,29 @@ test("a made tile never shows its page's controls while the page loads", async (
   await expect(frame).toHaveCSS("opacity", "1");
   await expect(frame.contentFrame().locator(".controls")).toBeHidden();
 });
+
+const terrainStage = (page: Page) => tiles(page).filter({ has: page.locator(".fig-name", { hasText: "Terrain" }) }).locator(".fig-stage svg").first();
+
+test("a tile walks its figure with no hand on the page", async ({ page }) => {
+  const noise = watch(page);
+  await page.goto("/figures");
+  /* no hand on the page: the pointer is parked in the corner, off every tile */
+  await page.mouse.move(0, 0);
+  const svg = terrainStage(page);
+  await expect(svg).toBeVisible();
+  const first = await svg.innerHTML();
+  await expect.poll(() => svg.innerHTML(), { timeout: 15000 }).not.toBe(first);
+  expect(noise).toEqual([]);
+});
+
+test("under reduced motion a tile rests", async ({ page }) => {
+  const noise = watch(page);
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/figures");
+  const svg = terrainStage(page);
+  await expect(svg).toBeVisible();
+  const first = await svg.innerHTML();
+  await page.waitForTimeout(4000);
+  expect(await svg.innerHTML()).toBe(first);
+  expect(noise).toEqual([]);
+});

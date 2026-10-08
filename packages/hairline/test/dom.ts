@@ -24,6 +24,10 @@ class FakeObserver {
   }
   unobserve(el: Element) { this.targets.delete(el); }
   disconnect() { this.targets.clear(); observers.delete(this); }
+  /** Reports the element on or off screen, as the real observer does when the page scrolls. */
+  show(el: Element, on: boolean) {
+    if (this.targets.has(el)) this.cb([{ target: el, isIntersecting: on } as IntersectionObserverEntry], this as unknown as IntersectionObserver);
+  }
 }
 
 /** Runs n frames of 1/60 s. A frame that nobody asked for still moves the clock. */
@@ -38,6 +42,9 @@ export function frames(n = 1) {
 
 /** How many frames are waiting. Zero means the loop is asleep. */
 export const pending = () => queue.size;
+
+/** Scrolls `el` on or off screen for every observer that watches it. */
+export const seen = (el: Element, on: boolean) => { for (const o of observers) o.show(el, on); };
 
 beforeEach(() => {
   queue = new Map(); id = 0; now = 1000;

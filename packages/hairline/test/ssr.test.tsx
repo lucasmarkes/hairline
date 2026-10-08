@@ -13,7 +13,7 @@ describe("on the server", () => {
 
   it("renders a component as an empty box of the right shape", async () => {
     const { Riffle } = await import("../src/react");
-    const html = renderToString(createElement(Riffle, { className: "w-80", intensity: 0.8, theme: "dark", label: "Cards", onRead() {} }));
+    const html = renderToString(createElement(Riffle, { className: "w-80", intensity: 0.8, theme: "dark", label: "Cards", play: true, onRead() {} }));
     expect(html).toBe('<div class="w-80" style="aspect-ratio:5 / 4"></div>');
   });
 

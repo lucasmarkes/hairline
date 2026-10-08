@@ -21,7 +21,7 @@ const useIsoLayoutEffect = typeof window === "undefined" ? useEffect : useLayout
 
 function make(name: string, mount: (el: HTMLElement, options?: HairlineOptions) => Figure): HairlineComponent {
   const Component = forwardRef<HTMLDivElement, HairlineProps>(function Hairline(props, ref) {
-    const { intensity, theme, label, onRead, style, ...attrs } = props;
+    const { intensity, theme, label, onRead, play, style, ...attrs } = props;
     /* aria-label stays on the div and is the figure's label too, so the two never disagree about the name */
     const named = label ?? props["aria-label"];
 
@@ -37,7 +37,7 @@ function make(name: string, mount: (el: HTMLElement, options?: HairlineOptions) 
     useIsoLayoutEffect(() => { read.current = onRead; });
 
     useIsoLayoutEffect(() => {
-      const f = mount(el.current!, { intensity, theme, label: named, onRead: (text) => read.current?.(text) });
+      const f = mount(el.current!, { intensity, theme, label: named, play, onRead: (text) => read.current?.(text) });
       figure.current = f;
       return () => { f.destroy(); figure.current = null; };
       // mounts once; options reach the figure through the effect below
@@ -45,7 +45,7 @@ function make(name: string, mount: (el: HTMLElement, options?: HairlineOptions) 
     }, []);
 
     /* every key is sent, so a prop that was removed goes back to its default */
-    useIsoLayoutEffect(() => { figure.current?.update({ intensity, theme, label: named }); }, [intensity, theme, named]);
+    useIsoLayoutEffect(() => { figure.current?.update({ intensity, theme, label: named, play }); }, [intensity, theme, named, play]);
 
     return <div {...attrs} ref={set} style={{ aspectRatio: "5 / 4", ...style }} />;
   });

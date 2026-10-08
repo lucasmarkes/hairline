@@ -33,7 +33,9 @@ slow(el, { intensity: "0.8" });
 exploded(el, { theme: "sepia" });
 // @ts-expect-error the element is required
 riffle();
-yes<Equal<keyof HairlineOptions, "intensity" | "theme" | "label" | "onRead">>();
+yes<Equal<keyof HairlineOptions, "intensity" | "theme" | "label" | "onRead" | "play">>();
+terrain(document.createElement("div"), { play: true });
+<Terrain play />;
 
 /* the handle */
 const f = riffle(el);
