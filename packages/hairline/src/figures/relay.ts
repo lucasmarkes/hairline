@@ -1,7 +1,7 @@
 import { Cam, facing, fit, lerp, poly, proj, ringAt, rrect, seg, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { tdone, tset, tval, tween, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
-import { lid, slab } from "../slab";
+import { inset, slab } from "../slab";
 
 /**
  * Relay: a hub plate and four branches of thin tiles on a floor, joined by
@@ -75,15 +75,16 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
 
   // The hub: a thick plate with a recessed square set in its top.
   const hub = solid(g);
-  const [hr, hi] = lid(-HS, -HS, HS, HS, 5, 2);
-  put(hub, slab(P, front, hr, hi, 0, HT));
-  const rim = mk("path", { d: poly(ringAt(P, rrect(-HS + 6, -HS + 6, HS - 6, HS - 6, 2.5, 4), HT)), class: "nf hi" }, g);
+  const hr = rrect(-HS, -HS, HS, HS, 7, 8);
+  put(hub, slab(P, front, hr, inset(C, hr, 1.3), 0, HT));
+  const rim = mk("path", { d: poly(ringAt(P, inset(C, hr, 2.8), HT)), class: "nf hi" }, g);
   const rimW = tween(1); let rimD = true;
-  mk("path", { d: poly(ringAt(P, rrect(-HS + 9, -HS + 9, HS - 9, HS - 9, 1.2, 4), HT)), class: "nf lo" }, g);
+  mk("path", { d: poly(ringAt(P, inset(C, hr, 3.8), HT)), class: "nf lo" }, g);
 
   // The tiles, back to front by x + y.
   for (const n of nodes.slice().sort((p, q) => p.c[0] + p.c[1] - q.c[0] - q.c[1])) {
-    [n.ring, n.inner] = lid(n.c[0] - TS, n.c[1] - TS, n.c[0] + TS, n.c[1] + TS, 2.5, 1.6);
+    n.ring = rrect(n.c[0] - TS, n.c[1] - TS, n.c[0] + TS, n.c[1] + TS, 3.6, 8);
+    n.inner = inset(C, n.ring, 1);
     n.el = solid(g);
   }
 

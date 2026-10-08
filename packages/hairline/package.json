@@ -83,7 +83,7 @@
     {
       "name": "vanilla, every figure",
       "path": "dist/index.js",
-      "limit": "42.0 kB"
+      "limit": "42.3 kB"
     },
     {
       "name": "vanilla, one figure",
@@ -94,7 +94,7 @@
     {
       "name": "react, every component",
       "path": "dist/react.js",
-      "limit": "42.4 kB",
+      "limit": "42.7 kB",
       "ignore": [
         "react",
         "react/jsx-runtime"

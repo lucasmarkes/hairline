@@ -1,7 +1,7 @@
-import { Cam, facing, fit, hull, lerp, poly, proj, ringAt, rings, seg, unproj, type Ring, type Vec2, type Vec3 } from "../core/iso";
+import { Cam, facing, fit, hull, lerp, poly, proj, ringAt, rrect, seg, unproj, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { EASE_LIFT, reducedMotion, tdone, tset, tval, tween, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
-import { lid, slab } from "../slab";
+import { inset, slab } from "../slab";
 
 /**
  * Rebuild: a monorepo as a tree of package tiles on a rounded plinth, a thick
@@ -49,7 +49,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   const bag = disposer();
   let rise = value, act = -1, grace: number | null = null;
   const NODES = TREE.map((t) => ({ ...t }) as Node);
-  const half = (n: Node) => (n.l ? HALF : HUBH), thick = (n: Node) => (n.l ? T : TH);
+  const half = (n: Node) => (n.l ? HALF : HUBH), thick = (n: Node) => (n.l ? T : TH), round = (n: Node) => (n.l ? 4.6 : 7);
   NODES.forEach((n, i) => { n.i = i; n.x = n.d + n.s; n.y = n.d - n.s; n.h = half(n); n.tw = tween(0); n.drawn = NaN; n.want = !n.i; n.at = undefined; });
 
   const C = Cam(45, 0.5, 1.5);
@@ -77,19 +77,18 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   // each dash is its own path, so the pulse can take them one by one (the stage eases the ink)
   for (const L of links) for (const e of L.dashes) e.el = mk("path", { d: e.d, class: "nf" }, g);
   for (const n of NODES) {
-    const [r] = rings(n.x - n.h, n.y - n.h, n.x + n.h, n.y + n.h, 3, 1);
+    const r = rrect(n.x - n.h, n.y - n.h, n.x + n.h, n.y + n.h, round(n), 8);
     n.ring = r;
     mk("path", { d: poly(ringAt(P, r, 0)), class: "nf lo" }, g);
   }
   // Back to front by x + y of the centre.
   const order = NODES.slice().sort((a, b) => a.x + a.y - (b.x + b.y));
   for (const n of order) {
-    const [r, ri] = lid(n.x - n.h, n.y - n.h, n.x + n.h, n.y + n.h, n.l ? 2.8 : 3.6, n.l ? 1.8 : 2);
-    n.ring = r; n.inner = ri; n.el = solid(g);
+    const r = rrect(n.x - n.h, n.y - n.h, n.x + n.h, n.y + n.h, round(n), 8);
+    n.ring = r; n.inner = inset(C, r, n.l ? 1.1 : 1.3); n.el = solid(g);
     // the root carries a recessed square in its lid
     if (!n.l) {
-      const [rs] = rings(n.x - 8, n.y - 8, n.x + 8, n.y + 8, 2, 0.5);
-      n.rec = rs; n.recEl = mk("path", { class: "nf lo" }, n.el.g);
+      n.rec = inset(C, r, 2.8); n.recEl = mk("path", { class: "nf lo" }, n.el.g);
     }
   }
   const draw = (n: Node, h: number) => {

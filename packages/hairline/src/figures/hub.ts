@@ -1,7 +1,7 @@
 import { Cam, clamp, facing, fit, hull, open, poly, proj, ringAt, rrect, seg, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { reducedMotion, spring, stepS, tdone, tset, tval, tween, type Spring, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
-import { lid, slab } from "../slab";
+import { inset, slab } from "../slab";
 
 /**
  * Hub: a thick plate in the middle of a faint floor grid, eight thin tiles
@@ -79,14 +79,16 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   const order: (Tile | null)[] = [...tiles, null].sort((a, b) => (a ? a.x + a.y : 0) - (b ? b.x + b.y : 0));
   for (const t of order) {
     if (!t) {
-      const [r, ri] = lid(-HUB, -HUB, HUB, HUB, 5, 1.8);
+      // the lip and the frame keep an even gap to the plate's edge as drawn; the mark stands free
+      const r = rrect(-HUB, -HUB, HUB, HUB, 7, 8), ri = inset(C, r, 1.3), fr = inset(C, r, 2.8), mr = rrect(-7, -7, 7, 7, 2, 8);
       put(solid(g), slab(P, front, r, ri, 0, HT));
-      mk("path", { d: open(ringAt(P, rrect(-13, -13, 13, 13, 3.5, 4).concat(rrect(-13, -13, 13, 13, 3.5, 4).slice(0, 1)), HT)), class: "nf lo" }, g);
-      const md = open(ringAt(P, rrect(-7, -7, 7, 7, 2, 4).concat(rrect(-7, -7, 7, 7, 2, 4).slice(0, 1)), HT));
+      mk("path", { d: open(ringAt(P, fr.concat(fr.slice(0, 1)), HT)), class: "nf lo" }, g);
+      const md = open(ringAt(P, mr.concat(mr.slice(0, 1)), HT));
       mark = mk("path", { d: md, class: "nf hi" }, g);
       continue;
     }
-    [t.ring, t.inner] = lid(t.x - HS, t.y - HS, t.x + HS, t.y + HS, 2.8, 1.8);
+    t.ring = rrect(t.x - HS, t.y - HS, t.x + HS, t.y + HS, 4, 8);
+    t.inner = inset(C, t.ring, 1.1);
     t.el = solid(g);
   }
 

@@ -1,7 +1,7 @@
 import { Cam, clamp, facing, fit, lerp, poly, proj, rad, ringAt, rrect, seg, unproj, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { reducedMotion, spring, stepS, tdone, tset, tval, tween, type Spring, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
-import { lid, slab } from "../slab";
+import { inset, slab } from "../slab";
 
 /**
  * Settle: a hub plate on a faint floor grid and twelve thin tiles lying
@@ -70,11 +70,11 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
 
   // the hub: a thick slab with a recessed square set into its lid
   const hub = mk("g", {}, g);
-  const [hr, hi] = lid(-HUB, -HUB, HUB, HUB, 4.5, 1.8);
+  const hr = rrect(-HUB, -HUB, HUB, HUB, 7, 8);
   const hs = solid(hub);
-  put(hs, slab(P, front, hr, hi, 0, HUBT));
+  put(hs, slab(P, front, hr, inset(C, hr, 1.3), 0, HUBT));
   hs.sil.classList.add("hi");
-  mk("path", { d: poly(ringAt(P, rrect(-9.5, -9.5, 9.5, 9.5, 2.5, 4), HUBT)), class: "nf lo" }, hub);
+  mk("path", { d: poly(ringAt(P, inset(C, hr, 2.8), HUBT)), class: "nf lo" }, hub);
 
   const tiles: Tile[] = T.map((t, i) => ({
     i, t, el: solid(mk("g", {}, g)),
@@ -101,7 +101,8 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
     tl.k = p.x + p.y + 6 * p.z;
     if (key === tl.key) return;
     tl.key = key;
-    put(tl.el, slab(P, front, turned(p.x, p.y, HALF, 2.3, p.a), turned(p.x, p.y, HALF - 1.6, 1, p.a), p.z, p.z + TH));
+    const r = turned(p.x, p.y, HALF, 3.6, p.a);
+    put(tl.el, slab(P, front, r, inset(C, r, 1), p.z, p.z + TH));
   }
 
   let order = "";
