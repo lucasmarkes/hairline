@@ -6,6 +6,8 @@ import { mount as dishEngine } from "./figures/dish";
 import { mount as drawerEngine } from "./figures/drawer";
 import { mount as elevatorEngine } from "./figures/elevator";
 import { mount as explodedEngine } from "./figures/exploded";
+import { mount as formatEngine } from "./figures/format";
+import { mount as hubEngine } from "./figures/hub";
 import { mount as keyboardEngine } from "./figures/keyboard";
 import { mount as laptopEngine } from "./figures/laptop";
 import { mount as lockersEngine } from "./figures/lockers";
@@ -18,17 +20,21 @@ import { mount as plotEngine } from "./figures/plot";
 import { mount as plugEngine } from "./figures/plug";
 import { mount as queryEngine } from "./figures/query";
 import { mount as railEngine } from "./figures/rail";
+import { mount as rebuildEngine } from "./figures/rebuild";
+import { mount as relayEngine } from "./figures/relay";
 import { mount as riffleEngine } from "./figures/riffle";
 import { mount as routerEngine } from "./figures/router";
+import { mount as settleEngine } from "./figures/settle";
 import { mount as sieveEngine } from "./figures/sieve";
 import { mount as slowEngine } from "./figures/slow";
+import { mount as stackEngine } from "./figures/stack";
 import { mount as terminalEngine } from "./figures/terminal";
 import { mount as terrainEngine } from "./figures/terrain";
 import { mount as turntableEngine } from "./figures/turntable";
 import { mount as vaultEngine } from "./figures/vault";
 
 /**
- * @lucasmarkes/hairline — twenty-seven isometric line figures that answer the pointer.
+ * @lucasmarkes/hairline — thirty-three isometric line figures that answer the pointer.
  *
  * One function per figure. Each takes an element and the same options, draws
  * into the element, and returns `{ update, destroy }`. Each function names
@@ -305,5 +311,71 @@ export function plot(el: HTMLElement, options?: HairlineOptions): Figure {
     label: "A bar chart with no data: seven flat tabs on its base, before a plate of grid lines. The pointer brushes them, and each lifts a little, the nearest most, and drops back to zero.",
     rest: "rest",
     engine: plotEngine,
+  }, el, options);
+}
+
+/** A hub and eight tiles on a grid: the tile under the pointer rises and its link turns solid, and its neighbours rise less. `intensity` raises the tiles higher. */
+export function hub(el: HTMLElement, options?: HairlineOptions): Figure {
+  return create({
+    id: "hub",
+    label: "A hub and eight tiles on a grid: the tile under the pointer rises and its link turns solid; its neighbours rise less.",
+    rest: "rest",
+    engine: hubEngine,
+    tour: [[205, 112], [260, 144], [329, 179], [263, 207], [201, 243], null],
+  }, el, options);
+}
+
+/** A hub and four branches of tiles: the path to the leaf under the pointer lights hop by hop, each tile rising in turn. `intensity` makes each hop wait longer. */
+export function relay(el: HTMLElement, options?: HairlineOptions): Figure {
+  return create({
+    id: "relay",
+    label: "A hub and four branches of tiles: the path to the leaf under the pointer lights hop by hop, each tile rising in turn.",
+    rest: "rest",
+    engine: relayEngine,
+    tour: [[45, 145], [140, 253], [271, 258], [355, 216], [344, 151], null],
+  }, el, options);
+}
+
+/** Twelve tiles lie crooked round a hub; as the pointer nears it they slide into a tree and the links draw in. `intensity` starts the tree from further away. */
+export function settle(el: HTMLElement, options?: HairlineOptions): Figure {
+  return create({
+    id: "settle",
+    label: "Twelve tiles lie crooked round a hub; as the pointer nears it they slide into a tree and the links draw in.",
+    rest: "rest",
+    engine: settleEngine,
+    tour: [[360, 40], [320, 120], [203, 155], null],
+  }, el, options);
+}
+
+/** A file of ten crooked lines: the pointer runs the formatter down it, and every line above snaps square to its indent. `intensity` starts the lines more crooked. */
+export function format(el: HTMLElement, options?: HairlineOptions): Figure {
+  return create({
+    id: "format",
+    label: "A file of ten crooked lines: the pointer runs the formatter down it, and every line above snaps square to its indent.",
+    rest: "rest",
+    engine: formatEngine,
+    tour: [[290, 162], [199, 168], [135, 200], null],
+  }, el, options);
+}
+
+/** A tree of package tiles: the one touched rises, and every package that depends on it rises after it along the links. `intensity` raises them higher. */
+export function rebuild(el: HTMLElement, options?: HairlineOptions): Figure {
+  return create({
+    id: "rebuild",
+    label: "A tree of package tiles: the one touched rises, and every package that depends on it rises after it along the links.",
+    rest: "rest",
+    engine: rebuildEngine,
+    tour: [[47, 236], [276, 172], [181, 106], null],
+  }, el, options);
+}
+
+/** A call stack of five frames: the pointer's height picks one, and the frames above lift away to open it. `intensity` lifts them further. */
+export function stack(el: HTMLElement, options?: HairlineOptions): Figure {
+  return create({
+    id: "stack",
+    label: "A call stack of five frames: the pointer's height picks one, and the frames above lift away to open it.",
+    rest: "rest",
+    engine: stackEngine,
+    tour: [[200, 250], [200, 216], [200, 199], null],
   }, el, options);
 }

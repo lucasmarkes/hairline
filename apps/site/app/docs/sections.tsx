@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Basket, Branches, Cabinet, Dish, Drawer, Elevator, Exploded, Keyboard, Laptop, Lockers, Loupe, Padlock, Patch, Phone, Phosphor, Plot, Plug, Query, Rail, Riffle, Router, Sieve, Slow, Terminal, Terrain, Turntable, Vault } from "@lucasmarkes/hairline/react";
+import { Basket, Branches, Cabinet, Dish, Drawer, Elevator, Exploded, Format, Hub, Keyboard, Laptop, Lockers, Loupe, Padlock, Patch, Phone, Phosphor, Plot, Plug, Query, Rail, Rebuild, Relay, Riffle, Router, Settle, Sieve, Slow, Stack, Terminal, Terrain, Turntable, Vault } from "@lucasmarkes/hairline/react";
 import { Anchor } from "@/components/anchor";
 import { CodeBlock } from "@/components/code-block";
 import { Install } from "@/components/install";
@@ -8,7 +8,7 @@ import { SECTIONS } from "@/lib/docs";
 import { COUNT, FIGURES, INTENSITY, OPTIONS, THEME, measure } from "@/lib/figures";
 import { NO_RESULTS, PACKAGE } from "@/lib/snippets";
 
-const SMALL = { riffle: Riffle, terrain: Terrain, exploded: Exploded, phosphor: Phosphor, slow: Slow, turntable: Turntable, keyboard: Keyboard, elevator: Elevator, phone: Phone, laptop: Laptop, terminal: Terminal, cabinet: Cabinet, branches: Branches, vault: Vault, lockers: Lockers, padlock: Padlock, patch: Patch, dish: Dish, router: Router, loupe: Loupe, sieve: Sieve, rail: Rail, plug: Plug, query: Query, drawer: Drawer, basket: Basket, plot: Plot };
+const SMALL = { riffle: Riffle, terrain: Terrain, exploded: Exploded, phosphor: Phosphor, slow: Slow, turntable: Turntable, keyboard: Keyboard, elevator: Elevator, phone: Phone, laptop: Laptop, terminal: Terminal, cabinet: Cabinet, branches: Branches, vault: Vault, lockers: Lockers, padlock: Padlock, patch: Patch, dish: Dish, router: Router, loupe: Loupe, sieve: Sieve, rail: Rail, plug: Plug, query: Query, drawer: Drawer, basket: Basket, plot: Plot, hub: Hub, relay: Relay, settle: Settle, format: Format, rebuild: Rebuild, stack: Stack };
 
 /** A section takes its title from SECTIONS, the list the rail reads, so the two always agree. Its link copies from beside its title. */
 function Section({ id, children }: { id: string; children: ReactNode }) {

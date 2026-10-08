@@ -64,6 +64,9 @@ export const SHELVES: Shelf[] = [
       drawn("terminal"),
       drawn("cabinet"),
       drawn("branches"),
+      drawn("format"),
+      drawn("rebuild"),
+      drawn("stack"),
     ],
   },
   {
@@ -78,6 +81,9 @@ export const SHELVES: Shelf[] = [
       drawn("patch"),
       drawn("dish"),
       drawn("router"),
+      drawn("hub"),
+      drawn("relay"),
+      drawn("settle"),
     ],
   },
   {
@@ -103,7 +109,7 @@ export const SHELVES: Shelf[] = [
 
 export const ENTRIES: Entry[] = SHELVES.flatMap((s) => s.figures);
 
-/** "Eight shelves, twenty-seven figures": the package's. The marks are the skill's, and are counted apart. */
+/** "Eight shelves, thirty-three figures": the package's. The marks are the skill's, and are counted apart. */
 export function tally(): string {
   const own = SHELVES.filter((s) => s.id !== "marks");
   return `${cap(spell(own.length))} shelves, ${spell(own.flatMap((s) => s.figures).length)} figures`;

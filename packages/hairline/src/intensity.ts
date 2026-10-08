@@ -7,7 +7,7 @@
  * copy and its tests hold the two together.
  */
 
-export type FigureId = "riffle" | "terrain" | "exploded" | "phosphor" | "slow" | "turntable" | "keyboard" | "elevator" | "phone" | "laptop" | "terminal" | "cabinet" | "branches" | "vault" | "lockers" | "padlock" | "patch" | "dish" | "router" | "loupe" | "sieve" | "rail" | "plug" | "query" | "drawer" | "basket" | "plot";
+export type FigureId = "riffle" | "terrain" | "exploded" | "phosphor" | "slow" | "turntable" | "keyboard" | "elevator" | "phone" | "laptop" | "terminal" | "cabinet" | "branches" | "vault" | "lockers" | "padlock" | "patch" | "dish" | "router" | "loupe" | "sieve" | "rail" | "plug" | "query" | "drawer" | "basket" | "plot" | "hub" | "relay" | "settle" | "format" | "rebuild" | "stack";
 
 /** Each figure's number at intensity 0, 0.5 and 1. Slow's falls: a slower clock is a stronger answer. */
 export const TABLE: Record<FigureId, readonly [number, number, number]> = {
@@ -38,6 +38,12 @@ export const TABLE: Record<FigureId, readonly [number, number, number]> = {
   drawer: [12, 22, 34], // pull, viewBox units
   basket: [8, 16, 28], // tilt, degrees
   plot: [3, 6, 12], // lift, viewBox units
+  hub: [10, 16, 24], // rise, viewBox units
+  relay: [40, 120, 220], // delay, ms per hop
+  settle: [90, 120, 150], // reach, viewBox units from the hub
+  format: [9, 12, 14], // disorder, degrees of the worst skew
+  rebuild: [8, 14, 20], // rise, viewBox units
+  stack: [22, 34, 46], // lift, viewBox units
 };
 
 export const DEFAULT = 0.5;
