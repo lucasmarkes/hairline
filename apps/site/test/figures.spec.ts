@@ -16,16 +16,16 @@ function watch(page: Page): string[] {
 const tiles = (page: Page) => page.locator(".fig-tile");
 const shelf = (page: Page, name: string) => page.locator(".shelves .shelf", { hasText: name });
 
-test("/figures prerenders twenty-seven empty boxes among thirty tiles, then draws them with a clean console", async ({ page, request }) => {
+test("/figures prerenders thirty-three empty boxes among thirty-six tiles, then draws them with a clean console", async ({ page, request }) => {
   const html = await (await request.get("/figures")).text();
-  expect(html.match(/<div style="aspect-ratio:5 \/ 4"><\/div>/g)).toHaveLength(27);
-  expect(html.match(/class="fig-tile"/g)).toHaveLength(30);
+  expect(html.match(/<div style="aspect-ratio:5 \/ 4"><\/div>/g)).toHaveLength(33);
+  expect(html.match(/class="fig-tile"/g)).toHaveLength(36);
   expect(html).not.toContain("data-planned");
 
   const noise = watch(page);
   await page.goto("/figures");
-  await expect(tiles(page)).toHaveCount(30);
-  await expect(page.locator(".fig-tile [data-hairline] > svg")).toHaveCount(27);
+  await expect(tiles(page)).toHaveCount(36);
+  await expect(page.locator(".fig-tile [data-hairline] > svg")).toHaveCount(33);
   await expect(page.locator(".fig-tile .fig-ghost, .fig-tile[data-planned]")).toHaveCount(0);
   await expect(page.locator("h1")).toHaveText("Every figure, by what it draws.");
   await expect(page.locator(".doc-section h2")).toHaveText(SHELVES);
@@ -36,7 +36,7 @@ test("/figures prerenders twenty-seven empty boxes among thirty tiles, then draw
 test("the shelves filter: All is pressed at first, a shelf shows only itself and names itself in the address", async ({ page }) => {
   await page.goto("/figures");
   await expect(shelf(page, "All")).toHaveAttribute("aria-pressed", "true");
-  await expect(page.locator(".shelves .shelf-n")).toHaveText(["30", "1", "3", "3", "3", "3", "3", "3", "8", "3"]);
+  await expect(page.locator(".shelves .shelf-n")).toHaveText(["36", "1", "3", "3", "3", "6", "3", "6", "8", "3"]);
 
   await shelf(page, "Machines").click();
   await expect(shelf(page, "Machines")).toHaveAttribute("aria-pressed", "true");
@@ -53,7 +53,7 @@ test("the shelves filter: All is pressed at first, a shelf shows only itself and
   })).toBeLessThan(1);
 
   await shelf(page, "All").click();
-  await expect(tiles(page)).toHaveCount(30);
+  await expect(tiles(page)).toHaveCount(36);
   expect(new URL(page.url()).hash).toBe("");
 });
 

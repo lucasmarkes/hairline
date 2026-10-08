@@ -93,3 +93,27 @@ export function Dish({ style, ...props }: ComponentProps<typeof Hairline.Dish>) 
 export function Router({ style, ...props }: ComponentProps<typeof Hairline.Router>) {
   return <Hairline.Router style={{ ...tokens, ...style }} {...props} />;
 }
+
+export function Hub({ style, ...props }: ComponentProps<typeof Hairline.Hub>) {
+  return <Hairline.Hub style={{ ...tokens, ...style }} {...props} />;
+}
+
+export function Relay({ style, ...props }: ComponentProps<typeof Hairline.Relay>) {
+  return <Hairline.Relay style={{ ...tokens, ...style }} {...props} />;
+}
+
+export function Settle({ style, ...props }: ComponentProps<typeof Hairline.Settle>) {
+  return <Hairline.Settle style={{ ...tokens, ...style }} {...props} />;
+}
+
+export function Format({ style, ...props }: ComponentProps<typeof Hairline.Format>) {
+  return <Hairline.Format style={{ ...tokens, ...style }} {...props} />;
+}
+
+export function Rebuild({ style, ...props }: ComponentProps<typeof Hairline.Rebuild>) {
+  return <Hairline.Rebuild style={{ ...tokens, ...style }} {...props} />;
+}
+
+export function Stack({ style, ...props }: ComponentProps<typeof Hairline.Stack>) {
+  return <Hairline.Stack style={{ ...tokens, ...style }} {...props} />;
+}

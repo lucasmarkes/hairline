@@ -17,7 +17,7 @@ describe("the catalogue", () => {
   it("names each figure once, on nine shelves", () => {
     expect(new Set(ENTRIES.map((e) => e.id)).size).toBe(ENTRIES.length);
     expect(new Set(ENTRIES.map((e) => e.name)).size).toBe(ENTRIES.length);
-    expect(SHELVES.map((s) => s.figures.length)).toEqual([1, 3, 3, 3, 3, 3, 3, 8, 3]);
+    expect(SHELVES.map((s) => s.figures.length)).toEqual([1, 3, 3, 3, 6, 3, 6, 8, 3]);
   });
 
   it("keeps the marks apart: made by the skill, counted outside the package's tally", () => {
@@ -31,13 +31,13 @@ describe("the catalogue", () => {
     }
     // each line says what that page's slider does
     expect(marks.figures.map((f) => f.stronger)).toEqual(["It answers from further away.", "The neck holds further before it lets go.", "The lid opens wider."]);
-    expect(tally()).toBe("Eight shelves, twenty-seven figures");
+    expect(tally()).toBe("Eight shelves, thirty-three figures");
     expect(NOTICE).toMatch(/not affiliated/);
   });
 
   it("counts in words, read from the shelves", () => {
     expect([spell(7), spell(19), spell(20), spell(21), spell(40), spell(99)]).toEqual(["seven", "nineteen", "twenty", "twenty-one", "forty", "ninety-nine"]);
-    expect(tally()).toBe("Eight shelves, twenty-seven figures");
+    expect(tally()).toBe("Eight shelves, thirty-three figures");
   });
 
   it("pastes each figure three ways, and the docs' Terrain is the same as before", () => {

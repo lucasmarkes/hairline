@@ -3,7 +3,7 @@ import { StrictMode, createRef } from "react";
 import { cleanup, render } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { frames, observers, pending } from "./dom";
-import { Basket, Branches, Cabinet, Dish, Drawer, Elevator, Exploded, Keyboard, Laptop, Lockers, Loupe, Padlock, Patch, Phone, Phosphor, Plot, Plug, Query, Rail, Riffle, Router, Sieve, Slow, Terminal, Terrain, Turntable, Vault } from "../src/react";
+import { Basket, Branches, Cabinet, Dish, Drawer, Elevator, Exploded, Format, Hub, Keyboard, Laptop, Lockers, Loupe, Padlock, Patch, Phone, Phosphor, Plot, Plug, Query, Rail, Rebuild, Relay, Riffle, Router, Settle, Sieve, Slow, Stack, Terminal, Terrain, Turntable, Vault } from "../src/react";
 
 afterEach(cleanup);
 
@@ -29,9 +29,9 @@ describe("components", () => {
   });
 
   it("renders each figure into one div", () => {
-    const { container } = render(<><Riffle /><Terrain /><Exploded /><Phosphor /><Slow /><Turntable /><Keyboard /><Elevator /><Phone /><Laptop /><Terminal /><Cabinet /><Branches /><Vault /><Lockers /><Padlock /><Patch /><Dish /><Router /><Loupe /><Sieve /><Rail /><Plug /><Query /><Drawer /><Basket /><Plot /></>);
+    const { container } = render(<><Riffle /><Terrain /><Exploded /><Phosphor /><Slow /><Turntable /><Keyboard /><Elevator /><Phone /><Laptop /><Terminal /><Cabinet /><Branches /><Vault /><Lockers /><Padlock /><Patch /><Dish /><Router /><Loupe /><Sieve /><Rail /><Plug /><Query /><Drawer /><Basket /><Plot /><Hub /><Relay /><Settle /><Format /><Rebuild /><Stack /></>);
     const ids = [...container.children].map((el) => el.getAttribute("data-hairline"));
-    expect(ids).toEqual(["riffle", "terrain", "exploded", "phosphor", "slow", "turntable", "keyboard", "elevator", "phone", "laptop", "terminal", "cabinet", "branches", "vault", "lockers", "padlock", "patch", "dish", "router", "loupe", "sieve", "rail", "plug", "query", "drawer", "basket", "plot"]);
+    expect(ids).toEqual(["riffle", "terrain", "exploded", "phosphor", "slow", "turntable", "keyboard", "elevator", "phone", "laptop", "terminal", "cabinet", "branches", "vault", "lockers", "padlock", "patch", "dish", "router", "loupe", "sieve", "rail", "plug", "query", "drawer", "basket", "plot", "hub", "relay", "settle", "format", "rebuild", "stack"]);
     for (const el of container.children) expect(el.querySelectorAll(":scope > svg")).toHaveLength(1);
   });
 
@@ -130,7 +130,7 @@ describe("components", () => {
   });
 
   it("names the components for the dev tools", () => {
-    expect([Riffle, Terrain, Exploded, Phosphor, Slow, Turntable, Keyboard, Elevator, Phone, Laptop, Terminal, Cabinet, Branches, Vault, Lockers, Padlock, Patch, Dish, Router, Loupe, Sieve, Rail, Plug, Query, Drawer, Basket, Plot].map((c) => c.displayName))
-      .toEqual(["Riffle", "Terrain", "Exploded", "Phosphor", "Slow", "Turntable", "Keyboard", "Elevator", "Phone", "Laptop", "Terminal", "Cabinet", "Branches", "Vault", "Lockers", "Padlock", "Patch", "Dish", "Router", "Loupe", "Sieve", "Rail", "Plug", "Query", "Drawer", "Basket", "Plot"]);
+    expect([Riffle, Terrain, Exploded, Phosphor, Slow, Turntable, Keyboard, Elevator, Phone, Laptop, Terminal, Cabinet, Branches, Vault, Lockers, Padlock, Patch, Dish, Router, Loupe, Sieve, Rail, Plug, Query, Drawer, Basket, Plot, Hub, Relay, Settle, Format, Rebuild, Stack].map((c) => c.displayName))
+      .toEqual(["Riffle", "Terrain", "Exploded", "Phosphor", "Slow", "Turntable", "Keyboard", "Elevator", "Phone", "Laptop", "Terminal", "Cabinet", "Branches", "Vault", "Lockers", "Padlock", "Patch", "Dish", "Router", "Loupe", "Sieve", "Rail", "Plug", "Query", "Drawer", "Basket", "Plot", "Hub", "Relay", "Settle", "Format", "Rebuild", "Stack"]);
   });
 });

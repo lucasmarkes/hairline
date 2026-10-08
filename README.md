@@ -1,6 +1,6 @@
 # hairline
 
-Twenty-seven isometric line figures that answer the pointer. For React and for anything with a DOM.
+Thirty-three isometric line figures that answer the pointer. For React and for anything with a DOM.
 
 [![npm](https://img.shields.io/npm/v/@lucasmarkes/hairline)](https://www.npmjs.com/package/@lucasmarkes/hairline)
 [![CI](https://github.com/lucasmarkes/hairline/actions/workflows/ci.yml/badge.svg)](https://github.com/lucasmarkes/hairline/actions/workflows/ci.yml)
@@ -82,6 +82,12 @@ A figure draws into the element you give it, at the element's width and a 5:4 as
 | `drawer` | `Drawer` | A cabinet of three drawers. The pointer's height picks one; it slides out and shows two dividers with nothing between them. | The drawer opens further. |
 | `basket` | `Basket` | A wire basket under a bail handle. It tilts toward the pointer and shows its bare floor; the handle swings after it. | The basket tilts further. |
 | `plot` | `Plot` | A bar chart with seven flat tabs where the bars would stand. The pointer brushes them; each lifts a little and drops back to zero. | The tabs lift higher. |
+| `hub` | `Hub` | A hub with eight tiles around it on dashed links. The tile under the pointer rises and its link turns solid. | The tiles rise higher. |
+| `relay` | `Relay` | A hub with four branches of tiles. The path to the leaf under the pointer lights hop by hop. | Each hop waits longer. |
+| `settle` | `Settle` | Twelve tiles lie crooked round a hub. As the pointer nears it, they slide into a tree and the links draw in. | The tree forms from further away. |
+| `format` | `Format` | A file of ten crooked lines. The pointer runs the formatter down it, and every line above snaps square. | The lines start more crooked. |
+| `rebuild` | `Rebuild` | A tree of packages. The one under the pointer rises, and every package that depends on it rises after it. | The packages rise higher. |
+| `stack` | `Stack` | A call stack of five frames. The pointer's height picks one, and the frames above lift away to open it. | The frames above lift further. |
 
 ## Options
 
@@ -126,7 +132,7 @@ The figure's styles have no specificity, so any rule of yours wins without `!imp
 
 ## Make your own
 
-`hairline-create` is a skill for coding agents. Give it an idea and it draws a new figure to Hairline's ten rules, on the same engine as the twenty-seven above, as one HTML file. Every figure it makes declares a tour, the stops a hand would visit, and the page it writes has a play button that walks it.
+`hairline-create` is a skill for coding agents. Give it an idea and it draws a new figure to Hairline's ten rules, on the same engine as the thirty-three above, as one HTML file. Every figure it makes declares a tour, the stops a hand would visit, and the page it writes has a play button that walks it.
 
 ```sh
 npx skills add lucasmarkes/hairline

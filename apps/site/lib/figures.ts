@@ -8,7 +8,7 @@
 
 import { spell } from "./words";
 
-export type FigureId = "riffle" | "terrain" | "exploded" | "phosphor" | "slow" | "turntable" | "keyboard" | "elevator" | "phone" | "laptop" | "terminal" | "cabinet" | "branches" | "vault" | "lockers" | "padlock" | "patch" | "dish" | "router" | "loupe" | "sieve" | "rail" | "plug" | "query" | "drawer" | "basket" | "plot";
+export type FigureId = "riffle" | "terrain" | "exploded" | "phosphor" | "slow" | "turntable" | "keyboard" | "elevator" | "phone" | "laptop" | "terminal" | "cabinet" | "branches" | "vault" | "lockers" | "padlock" | "patch" | "dish" | "router" | "loupe" | "sieve" | "rail" | "plug" | "query" | "drawer" | "basket" | "plot" | "hub" | "relay" | "settle" | "format" | "rebuild" | "stack";
 
 export type FigureDoc = {
   id: FigureId;
@@ -210,10 +210,51 @@ export const FIGURES: FigureDoc[] = [
     summary: "A bar chart with seven flat tabs where the bars would stand. The pointer brushes them; each lifts a little and drops back to zero.",
     stronger: "The tabs lift higher.",
     parameter: { name: "lift", unit: "viewBox units" },
+  },  {
+    id: "hub",
+    name: "Hub",
+    summary: "A hub with eight tiles around it on dashed links. The tile under the pointer rises and its link turns solid.",
+    stronger: "The tiles rise higher.",
+    parameter: { name: "rise", unit: "viewBox units" },
+  },
+  {
+    id: "relay",
+    name: "Relay",
+    summary: "A hub with four branches of tiles. The path to the leaf under the pointer lights hop by hop.",
+    stronger: "Each hop waits longer.",
+    parameter: { name: "delay", unit: "ms per hop" },
+  },
+  {
+    id: "settle",
+    name: "Settle",
+    summary: "Twelve tiles lie crooked round a hub. As the pointer nears it, they slide into a tree and the links draw in.",
+    stronger: "The tree forms from further away.",
+    parameter: { name: "reach", unit: "viewBox units" },
+  },
+  {
+    id: "format",
+    name: "Format",
+    summary: "A file of ten crooked lines. The pointer runs the formatter down it, and every line above snaps square.",
+    stronger: "The lines start more crooked.",
+    parameter: { name: "disorder", unit: "degrees" },
+  },
+  {
+    id: "rebuild",
+    name: "Rebuild",
+    summary: "A tree of packages. The one under the pointer rises, and every package that depends on it rises after it.",
+    stronger: "The packages rise higher.",
+    parameter: { name: "rise", unit: "viewBox units" },
+  },
+  {
+    id: "stack",
+    name: "Stack",
+    summary: "A call stack of five frames. The pointer's height picks one, and the frames above lift away to open it.",
+    stronger: "The frames above lift further.",
+    parameter: { name: "lift", unit: "viewBox units" },
   },
 ];
 
-/** How many figures the package has, as the prose writes it: "twenty-seven". */
+/** How many figures the package has, as the prose writes it: "thirty-three". */
 export const COUNT = spell(FIGURES.length);
 
 /** Each figure's number at intensity 0, 0.5 and 1: a copy of the package's table. */
@@ -245,6 +286,12 @@ export const INTENSITY: Record<FigureId, readonly [number, number, number]> = {
   drawer: [12, 22, 34],
   basket: [8, 16, 28],
   plot: [3, 6, 12],
+  hub: [10, 16, 24],
+  relay: [40, 120, 220],
+  settle: [90, 120, 150],
+  format: [9, 12, 14],
+  rebuild: [8, 14, 20],
+  stack: [22, 34, 46],
 };
 
 /** A number with its unit, as the docs' table and /llms.txt write it: "40 ms", "0.2× normal speed". */

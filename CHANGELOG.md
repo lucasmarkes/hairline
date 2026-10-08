@@ -4,6 +4,34 @@ Every release of `@lucasmarkes/hairline`. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [semver](https://semver.org/).
 
+## 0.5.0 - 2026-10-08
+
+### Added
+
+- `hub` and `Hub`: a hub and eight tiles on a grid. The tile under the pointer
+  rises and its link turns solid; its neighbours rise less. A stronger
+  `intensity` raises the tiles higher. Its tour visits all eight tiles in turn.
+- `relay` and `Relay`: a hub and four branches of tiles. The path to the leaf
+  under the pointer lights hop by hop, each tile rising in turn. A stronger
+  `intensity` makes each hop wait longer.
+- `settle` and `Settle`: twelve tiles lie crooked round a hub. As the pointer
+  nears it they slide into a tree and the links draw in. A stronger `intensity`
+  starts the tree from further away.
+- `format` and `Format`: a file of ten crooked lines. The pointer runs the
+  formatter down it, and every line above snaps square to its indent. A stronger
+  `intensity` starts the lines more crooked.
+- `rebuild` and `Rebuild`: a tree of package tiles. The one touched rises, and
+  every package that depends on it rises after it along the links. A stronger
+  `intensity` raises them higher.
+- `stack` and `Stack`: a call stack of five frames. The pointer's height picks
+  one, and the frames above lift away to open it. A stronger `intensity` lifts
+  them further.
+- The tiles, plates and frames of these six figures are slabs drawn whole: a
+  thin body with small rounded corners, the full top edge and a closed inner
+  lip.
+- Site: the Connectivity and Coding shelves hold six figures each, and each new
+  figure walks its own `tour` under `play`.
+
 ## 0.4.0 - 2026-10-07
 
 ### Added

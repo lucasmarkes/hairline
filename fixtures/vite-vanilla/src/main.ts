@@ -1,6 +1,6 @@
-import { basket, branches, cabinet, dish, drawer, elevator, exploded, keyboard, laptop, lockers, loupe, padlock, patch, phone, phosphor, plot, plug, query, rail, riffle, router, sieve, slow, terminal, terrain, turntable, vault, type Figure } from "@lucasmarkes/hairline";
+import { basket, branches, cabinet, dish, drawer, elevator, exploded, format, hub, keyboard, laptop, lockers, loupe, padlock, patch, phone, phosphor, plot, plug, query, rail, rebuild, relay, riffle, router, settle, sieve, slow, stack, terminal, terrain, turntable, vault, type Figure } from "@lucasmarkes/hairline";
 
-/** No framework: twenty-seven elements, twenty-seven calls. */
+/** No framework: thirty-three elements, thirty-three calls. */
 const el = (id: string) => document.getElementById(id)!;
 const read = el("read");
 
@@ -34,5 +34,11 @@ query(el("query"));
 drawer(el("drawer"));
 basket(el("basket"));
 plot(el("plot"));
+hub(el("hub"));
+relay(el("relay"));
+settle(el("settle"));
+format(el("format"));
+rebuild(el("rebuild"));
+stack(el("stack"));
 
 cards.update({ intensity: 0.8 });
