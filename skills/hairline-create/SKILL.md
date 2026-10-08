@@ -40,7 +40,7 @@ One figure, one idea. A concept that needs a label to be understood is not a con
 1. `node look.mjs <name>.js --answer x,y,z --edge x,y,z`, the points being world points of your figure, as `look.md` says. It builds the page, validates it, takes the eight pictures on one sheet, `hairline-<name>-look.png`, and checks the frame, the read-out and the console. Fix every line it prints as failed, and run it again until it exits 0.
 2. Read `look.md`, then the sheet, and answer its questions. Fix what fails, then go back to 1.
 
-`look.mjs` needs a browser and installs `playwright-core` once, outside this folder. Without one, check with `node validate.mjs hairline-<name>.html` after each build and do the look as `look.md` says under "Without a browser". Without Node, read the list of checks at the top of `validate.mjs` and answer each one from your code.
+`look.mjs` needs a browser and installs `playwright-core` once, outside this folder. If it stops with a timeout, run it again with `--chromium`. Without one, check with `node validate.mjs hairline-<name>.html` after each build and do the look as `look.md` says under "Without a browser". Without Node, read the list of checks at the top of `validate.mjs` and answer each one from your code.
 
 Do not hand over a page the validator rejects. Do not say the look is done if you did not look.
 

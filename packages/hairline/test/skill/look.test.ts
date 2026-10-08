@@ -1,5 +1,9 @@
+import { spawnSync } from "node:child_process";
+import { fileURLToPath } from "node:url";
 import { expect, it } from "vitest";
-import { beats, moved } from "../../../../skills/hairline-create/look.mjs";
+import { beats, launch, moved } from "../../../../skills/hairline-create/look.mjs";
+
+const LOOK = fileURLToPath(new URL("../../../../skills/hairline-create/look.mjs", import.meta.url));
 
 /** moved: the pixels inked in one picture and not the other, over the rest picture's ink. */
 it("is nothing when the two pictures are the same", () => {
@@ -29,4 +33,41 @@ it("by default reaches 600ms in sixteen frames, most of the way through the 700m
   const b = beats();
   expect(b).toHaveLength(16);
   expect(b.at(-1)).toBe(600);
+});
+
+/** launch: which browser the look starts. A fake Playwright records what it was asked for. */
+const fakePw = (chromeWorks: boolean) => {
+  const asked: unknown[] = [];
+  const chromium = {
+    launch: (o?: { channel?: string }) => {
+      asked.push(o ?? null);
+      return o?.channel && !chromeWorks ? Promise.reject(new Error("no chrome")) : Promise.resolve("browser");
+    },
+  };
+  return { pw: { chromium }, asked };
+};
+
+it("starts the installed Chrome by default", async () => {
+  const { pw, asked } = fakePw(true);
+  await launch(pw);
+  expect(asked).toEqual([{ channel: "chrome" }]);
+});
+
+it("falls back to Playwright's Chromium when there is no Chrome", async () => {
+  const { pw, asked } = fakePw(false);
+  await launch(pw);
+  expect(asked).toEqual([{ channel: "chrome" }, null]);
+});
+
+it("skips the installed Chrome when chromium is asked for, since some versions hang taking a picture headless", async () => {
+  const { pw, asked } = fakePw(true);
+  await launch(pw, true);
+  expect(asked).toEqual([null]);
+});
+
+it("takes --chromium on the command line", () => {
+  const r = spawnSync(process.execPath, [LOOK, "--chromium"], { encoding: "utf8" });
+  expect(r.status).toBe(2);
+  expect(r.stderr).not.toMatch(/Unknown option/);
+  expect(r.stderr).toMatch(/^usage:/);
 });

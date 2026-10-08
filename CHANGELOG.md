@@ -4,6 +4,15 @@ Every release of `@lucasmarkes/hairline`. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [semver](https://semver.org/).
 
+## Unreleased
+
+### Fixed
+
+- The skill's `look.mjs` takes `--chromium`, or `HAIRLINE_LOOK_BROWSER=chromium`,
+  to use Playwright's own Chromium instead of the installed Chrome, since some
+  versions of Chrome hang taking a picture headless. A timeout now says so and
+  exits 2, instead of throwing.
+
 ## 0.5.0 - 2026-10-08
 
 ### Added

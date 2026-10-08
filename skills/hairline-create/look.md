@@ -19,7 +19,7 @@ It builds `hairline-<name>.html` and validates it, as `build.mjs` and `validate.
 
 A change that moves the fit or the scale moves every `?at=` point with it. The world points stay where they are: give the same ones again and the new `?at=` points come out.
 
-The first run installs `playwright-core` once, into a cache folder of yours (`~/Library/Caches/hairline-look` on macOS, `%LOCALAPPDATA%\hairline-look` on Windows, `~/.cache/hairline-look` elsewhere; `HAIRLINE_LOOK_CACHE` moves it), and never into the skill or the working directory. It drives your Chrome, or Playwright's Chromium when there is no Chrome. With neither, it prints the one command that installs Chromium and exits 2. It exits 2 as well when it cannot install; then do the look as "Without a browser" says.
+The first run installs `playwright-core` once, into a cache folder of yours (`~/Library/Caches/hairline-look` on macOS, `%LOCALAPPDATA%\hairline-look` on Windows, `~/.cache/hairline-look` elsewhere; `HAIRLINE_LOOK_CACHE` moves it), and never into the skill or the working directory. It drives your Chrome, or Playwright's Chromium when there is no Chrome. Some installed Chrome versions hang taking pictures headless; then `look.mjs` stops with a timeout line and exits 2. Run it again with `--chromium` (or set `HAIRLINE_LOOK_BROWSER=chromium`) to skip the installed Chrome. With neither, it prints the one command that installs Chromium and exits 2. It exits 2 as well when it cannot install; then do the look as "Without a browser" says.
 
 ## The pictures
 
