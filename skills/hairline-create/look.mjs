@@ -2,7 +2,7 @@
 /**
  * The look in one command, run from the person's working directory:
  *
- *   node <skill folder>/look.mjs <name>.js --answer x,y,z [--edge x,y,z [--edge x,y,z]] [--zoom <shot>]
+ *   node <skill folder>/look.mjs <name>.js --answer x,y,z [--edge x,y,z [--edge x,y,z]] [--zoom <shot>] [--chromium]
  *
  * It builds and validates the page as build.mjs and validate.mjs do, opens
  * look.md's eight addresses at once in one browser, and writes the eight
@@ -27,7 +27,8 @@
  * The browser is Playwright's. playwright-core is installed once into a cache
  * folder of the user's (HAIRLINE_LOOK_CACHE moves it), never into the skill or
  * the working directory, and it drives the installed Chrome, or Playwright's
- * own Chromium when there is no Chrome.
+ * own Chromium when there is no Chrome. --chromium, or HAIRLINE_LOOK_BROWSER=chromium,
+ * skips the installed Chrome: some versions hang taking a picture headless.
  */
 import { spawnSync } from "node:child_process";
 import { mkdirSync, readFileSync, realpathSync, writeFileSync } from "node:fs";
@@ -40,7 +41,7 @@ import { assemble, nameOf } from "./build.mjs";
 import { validate } from "./validate.mjs";
 
 const here = (p) => fileURLToPath(new URL(p, import.meta.url));
-const USAGE = "usage: node look.mjs <name>.js --answer x,y,z [--edge x,y,z [--edge x,y,z]] [--zoom <shot>]";
+const USAGE = "usage: node look.mjs <name>.js --answer x,y,z [--edge x,y,z [--edge x,y,z]] [--zoom <shot>] [--chromium]";
 /** Each picture waits 1.5 seconds after its page loads, then until its drawing holds still for a quarter of a second, and no longer than 5 seconds from the load. */
 const WAIT = 1500, STILL = 250, CAP = 5000;
 /** A rest pose whose box covers less of the frame than this is reported as small. Both examples' rest boxes cover 36%: Terrain's 297 × 155, Riffle's 226 × 205. */
@@ -97,6 +98,11 @@ export function cacheDir(env = process.env, platform = process.platform, home = 
   if (platform === "darwin") return join(home, "Library", "Caches", "hairline-look");
   if (platform === "win32") return join(env.LOCALAPPDATA || join(home, "AppData", "Local"), "hairline-look");
   return join(env.XDG_CACHE_HOME || join(home, ".cache"), "hairline-look");
+}
+
+/** Starts the browser: the installed Chrome, or Playwright's own Chromium when there is none or when chromium is asked for. */
+export function launch(pw, chromium = false) {
+  return chromium ? pw.chromium.launch() : pw.chromium.launch({ channel: "chrome" }).catch(() => pw.chromium.launch());
 }
 
 /** A point given on the command line: three numbers for the world, two for the viewBox, or null. */
@@ -242,7 +248,7 @@ const n0 = (v) => Math.round(v);
 /** The look of one figure (a .js, built here, or a page build.mjs made). Prints as it goes and returns the exit code. */
 export async function look(src, given0 = {}, cwd = process.cwd()) {
   let { answer = null, edge = [] } = given0;
-  const { zoom = null } = given0;
+  const { zoom = null, chromium = process.env.HAIRLINE_LOOK_BROWSER === "chromium" } = given0;
   if (zoom && !SHOTS.some(([s]) => s === zoom)) { console.error(`look: no shot "${zoom}". The shots: ${SHOTS.map(([s]) => s).join(", ")}.`); return 2; }
 
   // 1. the page, built and validated
@@ -271,7 +277,7 @@ export async function look(src, given0 = {}, cwd = process.cwd()) {
     console.error('Check the network and run this again, or look without a browser: look.md, "Without a browser".');
     return 2;
   }
-  const browser = await pw.chromium.launch({ channel: "chrome" }).catch(() => pw.chromium.launch()).catch(() => null);
+  const browser = await launch(pw, chromium).catch(() => null);
   if (!browser) {
     console.error(`look: no Chrome, and no Chromium of Playwright's. Install one once:\n  node "${pw.cli}" install chromium`);
     console.error('Then run this again. Without a browser, look.md says what to do: "Without a browser".');
@@ -429,7 +435,7 @@ export const same = (a, b, platform = process.platform) => platform === "win32" 
 if (process.argv[1] && same(realpathSync(process.argv[1]), realpathSync(here("./look.mjs")))) {
   let args;
   try {
-    args = parseArgs({ allowPositionals: true, options: { answer: { type: "string" }, edge: { type: "string", multiple: true }, zoom: { type: "string" } } });
+    args = parseArgs({ allowPositionals: true, options: { answer: { type: "string" }, edge: { type: "string", multiple: true }, zoom: { type: "string" }, chromium: { type: "boolean" } } });
   } catch (e) {
     console.error(`${e.message}\n${USAGE}`);
     process.exit(2);
@@ -441,5 +447,11 @@ if (process.argv[1] && same(realpathSync(process.argv[1]), realpathSync(here("./
     console.error(USAGE);
     process.exit(2);
   }
-  process.exit(await look(src, { answer, edge, zoom: values.zoom ?? null }));
+  const given = { answer, edge, zoom: values.zoom ?? null, ...(values.chromium ? { chromium: true } : {}) };
+  process.exit(await look(src, given).catch((e) => {
+    if (e?.name !== "TimeoutError") throw e;
+    console.error(`look: the browser timed out (${e.message.split("\n")[0]}).`);
+    console.error("The installed Chrome can hang taking pictures headless. Run this again with --chromium, or set HAIRLINE_LOOK_BROWSER=chromium, to use Playwright's own Chromium.");
+    return 2;
+  }));
 }
