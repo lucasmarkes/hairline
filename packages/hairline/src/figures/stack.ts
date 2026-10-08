@@ -1,6 +1,7 @@
-import { Cam, facing, fit, poly, prism, proj, ringAt, rings, type Ring } from "../core/iso";
+import { Cam, facing, fit, poly, proj, ringAt, rings, type Ring } from "../core/iso";
 import { spring, stepS, tdone, tset, tval, tween, type Spring, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
+import { lid, slab } from "../slab";
 
 /**
  * Stack: a call stack, five frames laid one over another on a base plate, each
@@ -23,7 +24,7 @@ const OPEN = 700, CLOSE = 1250, CSTEP = 45, KICK = 0.42, SETTLE = 230;
 const HYS = 5;
 const OFF = [[-1.5, 1], [1.5, -1.2], [-0.5, -1.8], [2, 1.2], [0, 0]];
 
-type Frame = { j: number; ring: Ring; inner: Ring; el: Solid; rim: Ring; lid: SVGPathElement; tw: Tween; sp: Spring & { v0?: number }; kick: number; drawn: number };
+type Frame = { j: number; ring: Ring; el: Solid; rim: Ring; tw: Tween; sp: Spring & { v0?: number }; kick: number; drawn: number };
 
 export const mount: FigureMount = ({ stage, svg, read }, value) => {
   const bag = disposer();
@@ -37,8 +38,8 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   const P = proj(C), front = facing(C);
 
   const g = mk("g", {}, svg);
-  const [br, bi] = rings(BASE[0], BASE[1], BASE[2], BASE[3], 8, 1.6);
-  put(solid(g), prism(P, front, br, bi, 0, BT));
+  const [br, bi] = lid(BASE[0], BASE[1], BASE[2], BASE[3], 7, 2);
+  put(solid(g), slab(P, front, br, bi, 0, BT));
   // a recessed square in the base, under the stack
   const [rr] = rings(4, 4, 52, 52, 4, 1);
   mk("path", { d: poly(ringAt(P, rr, BT)), class: "nf lo" }, g);
@@ -46,17 +47,16 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   const fr: Frame[] = [];
   for (let j = 0; j < N; j++) {
     const x0 = 0 + OFF[j][0], y0 = 0 + OFF[j][1];
-    const [ring, inner] = rings(x0, y0, x0 + FW, y0 + FW, 5, 1.1);
+    const [ring] = lid(x0, y0, x0 + FW, y0 + FW, 5, 1.1);
     const el = solid(g);
-    // the same quiet inset rim on every lid
-    const [rim] = rings(x0 + 5, y0 + 5, x0 + FW - 5, y0 + FW - 5, 2.5, 0.6);
-    fr.push({ j, ring, inner, el, rim, lid: mk("path", { class: "nf lo" }, el.g), tw: tween(0), sp: spring(0, { k: 90, c: 10, eps: 0.005 }), kick: Infinity, drawn: NaN });
+    // the same quiet inset rim on every lid: the slab's lip
+    const [rim] = lid(x0 + 4, y0 + 4, x0 + FW - 4, y0 + FW - 4, 2.5, 0.6);
+    fr.push({ j, ring, el, rim, tw: tween(0), sp: spring(0, { k: 90, c: 10, eps: 0.005 }), kick: Infinity, drawn: NaN });
   }
 
   function draw(f: Frame, e: number) {
     const z = Z0 + f.j * PITCH + e;
-    put(f.el, prism(P, front, f.ring, f.inner, z, z + T));
-    f.lid.setAttribute("d", poly(ringAt(P, f.rim, z + T)));
+    put(f.el, slab(P, front, f.ring, f.rim, z, z + T));
   }
 
   const B = register(stage, (_dt, now) => {

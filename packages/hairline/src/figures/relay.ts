@@ -1,6 +1,7 @@
-import { Cam, facing, fit, lerp, poly, prism, proj, ringAt, rings, rrect, seg, type Ring, type Vec2, type Vec3 } from "../core/iso";
+import { Cam, facing, fit, lerp, poly, proj, ringAt, rrect, seg, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { tdone, tset, tval, tween, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
+import { lid, slab } from "../slab";
 
 /**
  * Relay: a hub plate and four branches of thin tiles on a floor, joined by
@@ -74,15 +75,15 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
 
   // The hub: a thick plate with a recessed square set in its top.
   const hub = solid(g);
-  const [hr, hi] = rings(-HS, -HS, HS, HS, 6, 2);
-  put(hub, prism(P, front, hr, hi, 0, HT));
+  const [hr, hi] = lid(-HS, -HS, HS, HS, 5, 2);
+  put(hub, slab(P, front, hr, hi, 0, HT));
   const rim = mk("path", { d: poly(ringAt(P, rrect(-HS + 6, -HS + 6, HS - 6, HS - 6, 2.5, 4), HT)), class: "nf hi" }, g);
   const rimW = tween(1); let rimD = true;
   mk("path", { d: poly(ringAt(P, rrect(-HS + 9, -HS + 9, HS - 9, HS - 9, 1.2, 4), HT)), class: "nf lo" }, g);
 
   // The tiles, back to front by x + y.
   for (const n of nodes.slice().sort((p, q) => p.c[0] + p.c[1] - q.c[0] - q.c[1])) {
-    [n.ring, n.inner] = rings(n.c[0] - TS, n.c[1] - TS, n.c[0] + TS, n.c[1] + TS, 3.4, 1.1);
+    [n.ring, n.inner] = lid(n.c[0] - TS, n.c[1] - TS, n.c[0] + TS, n.c[1] + TS, 2.5, 1.6);
     n.el = solid(g);
   }
 
@@ -96,7 +97,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
       }
       if (z !== n.zd) {
         n.zd = z;
-        put(n.el, prism(P, front, n.ring, n.inner, z * RISE, z * RISE + T));
+        put(n.el, slab(P, front, n.ring, n.inner, z * RISE, z * RISE + T));
       }
       // The bright edge is a class on the silhouette; the kernel eases the stroke between the two (260ms),
       // so the hand-off is a cross-fade. Its weight tween only says when to flip.

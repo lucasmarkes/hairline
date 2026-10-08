@@ -1,6 +1,7 @@
-import { Cam, facing, fit, hull, lerp, poly, prism, proj, ringAt, rings, seg, unproj, type Ring, type Vec2, type Vec3 } from "../core/iso";
+import { Cam, facing, fit, hull, lerp, poly, proj, ringAt, rings, seg, unproj, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { EASE_LIFT, reducedMotion, tdone, tset, tval, tween, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
+import { lid, slab } from "../slab";
 
 /**
  * Rebuild: a monorepo as a tree of package tiles on a rounded plinth, a thick
@@ -83,7 +84,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   // Back to front by x + y of the centre.
   const order = NODES.slice().sort((a, b) => a.x + a.y - (b.x + b.y));
   for (const n of order) {
-    const [r, ri] = rings(n.x - n.h, n.y - n.h, n.x + n.h, n.y + n.h, n.l ? 3 : 4, n.l ? 1 : 1.6);
+    const [r, ri] = lid(n.x - n.h, n.y - n.h, n.x + n.h, n.y + n.h, n.l ? 2.8 : 3.6, n.l ? 1.8 : 2);
     n.ring = r; n.inner = ri; n.el = solid(g);
     // the root carries a recessed square in its lid
     if (!n.l) {
@@ -92,7 +93,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
     }
   }
   const draw = (n: Node, h: number) => {
-    put(n.el, prism(P, front, n.ring, n.inner, h, h + thick(n)));
+    put(n.el, slab(P, front, n.ring, n.inner, h, h + thick(n)));
     if (n.rec) n.recEl!.setAttribute("d", poly(ringAt(P, n.rec, h + thick(n))));
   };
 

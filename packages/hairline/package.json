@@ -94,7 +94,7 @@
     {
       "name": "react, every component",
       "path": "dist/react.js",
-      "limit": "42.3 kB",
+      "limit": "42.4 kB",
       "ignore": [
         "react",
         "react/jsx-runtime"

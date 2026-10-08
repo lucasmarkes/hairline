@@ -1,6 +1,7 @@
-import { Cam, clamp, facing, fit, hull, open, poly, prism, proj, ringAt, rings, rrect, seg, type Ring, type Vec2, type Vec3 } from "../core/iso";
+import { Cam, clamp, facing, fit, hull, open, poly, proj, ringAt, rrect, seg, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { reducedMotion, spring, stepS, tdone, tset, tval, tween, type Spring, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
+import { lid, slab } from "../slab";
 
 /**
  * Hub: a thick plate in the middle of a faint floor grid, eight thin tiles
@@ -14,7 +15,7 @@ import { disposer, mk, pointer, put, register, solid, type FigureMount, type Sol
  * positions, a falloff by angle, a stagger by hops round the ring.
  */
 
-const D = 52, HS = 10, T = 4, HUB = 18, HT = 8, FALL = [1, 0.5, 0.2, 0.06, 0], STEP = 70, HIT = 40;
+const D = 52, HS = 10, T = 3, HUB = 18, HT = 8, FALL = [1, 0.5, 0.2, 0.06, 0], STEP = 70, HIT = 40;
 // The rise arrives on a lightly underdamped spring; the return is slower and near-critical.
 const UP = { k: 70, c: 14 }, DOWN = { k: 40, c: 12.4 }, DRAW = { k: 120, c: 21, eps: 0.002 }, RETRACT = { k: 36, c: 11.6, eps: 0.002 };
 // Each tile's cell, and how far it sits off it.
@@ -78,14 +79,14 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   const order: (Tile | null)[] = [...tiles, null].sort((a, b) => (a ? a.x + a.y : 0) - (b ? b.x + b.y : 0));
   for (const t of order) {
     if (!t) {
-      const [r, ri] = rings(-HUB, -HUB, HUB, HUB, 6, 1.4);
-      put(solid(g), prism(P, front, r, ri, 0, HT));
+      const [r, ri] = lid(-HUB, -HUB, HUB, HUB, 5, 1.8);
+      put(solid(g), slab(P, front, r, ri, 0, HT));
       mk("path", { d: open(ringAt(P, rrect(-13, -13, 13, 13, 3.5, 4).concat(rrect(-13, -13, 13, 13, 3.5, 4).slice(0, 1)), HT)), class: "nf lo" }, g);
       const md = open(ringAt(P, rrect(-7, -7, 7, 7, 2, 4).concat(rrect(-7, -7, 7, 7, 2, 4).slice(0, 1)), HT));
       mark = mk("path", { d: md, class: "nf hi" }, g);
       continue;
     }
-    [t.ring, t.inner] = rings(t.x - HS, t.y - HS, t.x + HS, t.y + HS, 3.5, 1);
+    [t.ring, t.inner] = lid(t.x - HS, t.y - HS, t.x + HS, t.y + HS, 2.8, 1.8);
     t.el = solid(g);
   }
 
@@ -94,7 +95,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   function draw(t: Tile, now: number) {
     const z = Math.max(0, t.sp.x), l = clamp(t.lk.x, 0, 1), w = tval(t.hw, now);
     if (z !== t.drawn) {
-      t.drawn = z; put(t.el, prism(P, front, t.ring, t.inner, z, z + T));
+      t.drawn = z; put(t.el, slab(P, front, t.ring, t.inner, z, z + T));
       t.slot.setAttribute("d", z > 0.4 ? poly(ringAt(P, t.ring, 0)) : "");
     }
     // the bright mark is the stroke's own colour transition, switched when its weight crosses half

@@ -321,7 +321,7 @@ export function hub(el: HTMLElement, options?: HairlineOptions): Figure {
     label: "A hub and eight tiles on a grid: the tile under the pointer rises and its link turns solid; its neighbours rise less.",
     rest: "rest",
     engine: hubEngine,
-    tour: [[205, 112], [260, 144], [329, 179], [263, 207], [201, 243], null],
+    tour: [[205, 112], [260, 144], [328, 179], [263, 207], [201, 243], [131, 209], [76, 177], [136, 141], null],
   }, el, options);
 }
 

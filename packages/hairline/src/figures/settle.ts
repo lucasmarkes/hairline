@@ -1,6 +1,7 @@
-import { Cam, clamp, facing, fit, lerp, poly, prism, proj, rad, ringAt, rings, rrect, seg, unproj, type Ring, type Vec2, type Vec3 } from "../core/iso";
+import { Cam, clamp, facing, fit, lerp, poly, proj, rad, ringAt, rrect, seg, unproj, type Ring, type Vec2, type Vec3 } from "../core/iso";
 import { reducedMotion, spring, stepS, tdone, tset, tval, tween, type Spring, type Tween } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
+import { lid, slab } from "../slab";
 
 /**
  * Settle: a hub plate on a faint floor grid and twelve thin tiles lying
@@ -34,7 +35,7 @@ type Tile = {
 /** A rounded square of half-side h about (cx, cy), turned by a degrees: a ring whose samples carry their normals round with it. */
 function turned(cx: number, cy: number, h: number, r: number, a: number): Ring {
   const c = Math.cos(rad(a)), s = Math.sin(rad(a));
-  return rrect(-h, -h, h, h, r, 4).map((q) => ({
+  return rrect(-h, -h, h, h, r, 8).map((q) => ({
     u: cx + q.u * c - q.v * s, v: cy + q.u * s + q.v * c, nu: q.nu * c - q.nv * s, nv: q.nu * s + q.nv * c,
   }));
 }
@@ -69,9 +70,9 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
 
   // the hub: a thick slab with a recessed square set into its lid
   const hub = mk("g", {}, g);
-  const [hr, hi] = rings(-HUB, -HUB, HUB, HUB, 5, 1.6);
+  const [hr, hi] = lid(-HUB, -HUB, HUB, HUB, 4.5, 1.8);
   const hs = solid(hub);
-  put(hs, prism(P, front, hr, hi, 0, HUBT));
+  put(hs, slab(P, front, hr, hi, 0, HUBT));
   hs.sil.classList.add("hi");
   mk("path", { d: poly(ringAt(P, rrect(-9.5, -9.5, 9.5, 9.5, 2.5, 4), HUBT)), class: "nf lo" }, hub);
 
@@ -100,7 +101,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
     tl.k = p.x + p.y + 6 * p.z;
     if (key === tl.key) return;
     tl.key = key;
-    put(tl.el, prism(P, front, turned(p.x, p.y, HALF, 2.6, p.a), turned(p.x, p.y, HALF - 1.1, 1.6, p.a), p.z, p.z + TH));
+    put(tl.el, slab(P, front, turned(p.x, p.y, HALF, 2.3, p.a), turned(p.x, p.y, HALF - 1.6, 1, p.a), p.z, p.z + TH));
   }
 
   let order = "";

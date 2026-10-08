@@ -1,6 +1,7 @@
-import { Cam, clamp, facing, fit, prism, proj, rad, rings, rrect, unproj, type Ring, type Vec2 } from "../core/iso";
+import { Cam, clamp, facing, fit, proj, rad, rrect, unproj, type Ring, type Vec2 } from "../core/iso";
 import { reducedMotion, spring, stepS, type Spring } from "../core/motion";
 import { disposer, mk, pointer, put, register, solid, type FigureMount, type Solid } from "../core/stage";
+import { lid, slab } from "../slab";
 
 /**
  * Format: a file as a stack of ten thin slabs on a rounded board, one to a
@@ -38,7 +39,7 @@ const N = LINES.length;
 
 type Row = {
   r: number; yaw: number; dx: number; dy: number; dz: number; px: number; py: number; drawn: number;
-  ring: Ring; inner: Ring; sp: Spring; tgt: number; due: number; el: Solid;
+  ring: Ring; sp: Spring; tgt: number; due: number; el: Solid;
   lit: boolean; wantLit: boolean; litDue: number;
 };
 
@@ -61,8 +62,8 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
   const P = proj(C), front = facing(C);
 
   const g = mk("g", {}, svg);
-  const [br, bi] = rings(BX0, BY0, BX1, BY1, 9, 2.2);
-  put(solid(g), prism(P, front, br, bi, -PB, 0));
+  const [br, bi] = lid(BX0, BY0, BX1, BY1, 8, 2.2);
+  put(solid(g), slab(P, front, br, bi, -PB, 0));
   // the gutter: a dashed guide on the board, before any line lies on it
   mk("path", { d: `M${P(X0 - 4, BY0 + 5, 0).join(" ")}L${P(X0 - 4, BY1 - 5, 0).join(" ")}`, class: "dash" }, g);
 
@@ -71,7 +72,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
     const e = solid(g);
     return {
       r, yaw, dx, dy, dz, px: x0, py: y0 + WD / 2, drawn: NaN,
-      ring: rrect(x0, y0, x0 + len, y0 + WD, 2.2, 4), inner: rrect(x0 + 0.9, y0 + 0.9, x0 + len - 0.9, y0 + WD - 0.9, 1.3, 4),
+      ring: rrect(x0, y0, x0 + len, y0 + WD, 2.2, 6),
       sp: spring(1, { k: 100, c: 14, eps: 0.003 }), tgt: 1, due: -1, el: e,
       // the bright edge: the kernel's stroke transition fades it in and out; this only says when
       lit: false, wantLit: false, litDue: -1,
@@ -83,9 +84,7 @@ export const mount: FigureMount = ({ stage, svg, read }, value) => {
     if (m !== w.drawn) {
       w.drawn = m;
       const k = m * mess, th = w.yaw * MAXV * k, z = Math.max(0, m) * w.dz * mess;
-      const ring = turn(w.ring, w.px, w.py, th, w.dx * k, w.dy * k), inner = turn(w.inner, w.px, w.py, th, w.dx * k, w.dy * k);
-      const p = prism(P, front, ring, inner, z, z + T);
-      put(w.el, p);
+      put(w.el, slab(P, front, turn(w.ring, w.px, w.py, th, w.dx * k, w.dy * k), null, z, z + T));
     }
   }
 

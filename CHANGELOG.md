@@ -10,7 +10,7 @@ Every release of `@lucasmarkes/hairline`. The format follows
 
 - `hub` and `Hub`: a hub and eight tiles on a grid. The tile under the pointer
   rises and its link turns solid; its neighbours rise less. A stronger
-  `intensity` raises the tiles higher.
+  `intensity` raises the tiles higher. Its tour visits all eight tiles in turn.
 - `relay` and `Relay`: a hub and four branches of tiles. The path to the leaf
   under the pointer lights hop by hop, each tile rising in turn. A stronger
   `intensity` makes each hop wait longer.
@@ -26,6 +26,9 @@ Every release of `@lucasmarkes/hairline`. The format follows
 - `stack` and `Stack`: a call stack of five frames. The pointer's height picks
   one, and the frames above lift away to open it. A stronger `intensity` lifts
   them further.
+- The tiles, plates and frames of these six figures are slabs drawn whole: a
+  thin body with small rounded corners, the full top edge and a closed inner
+  lip.
 - Site: the Connectivity and Coding shelves hold six figures each, and each new
   figure walks its own `tour` under `play`.
 
