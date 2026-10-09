@@ -4,6 +4,15 @@ Every release of `@lucasmarkes/hairline`. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); versions follow
 [semver](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- `play` takes a number of laps: `play: 2` walks the figure's tour twice, and
+  then the figure rests and the shared loop can sleep. `true` still walks it in
+  a loop. A lap a hand cuts short does not count, and a new value starts the
+  walk again. In React, `<Terrain play={2} />`.
+
 ## 0.5.0 - 2026-10-08
 
 ### Added

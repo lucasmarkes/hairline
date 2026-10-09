@@ -307,7 +307,7 @@ export const OPTIONS: Row[] = [
   { name: "theme", type: "\"auto\" | \"light\" | \"dark\"", default: "\"auto\"", description: "\"auto\" follows the page: an ancestor with class dark or data-theme=\"dark\", then the page's color-scheme." },
   { name: "label", type: "string", default: "a description", description: "The accessible name. In React, aria-label does the same." },
   { name: "onRead", type: "(text: string) => void", default: "", description: "The figure's caption, each time it changes. Called once at mount with the rest caption." },
-  { name: "play", type: "boolean", default: "false", description: "Walks the figure through its answer on its own, in a loop, until the pointer or focus arrives; it resumes after they leave. Under prefers-reduced-motion the figure rests." },
+  { name: "play", type: "boolean | number", default: "false", description: "Walks the figure through its answer on its own until the pointer or focus arrives; it resumes after they leave. true walks it in a loop; a whole number walks that many laps, and then the figure rests. Under prefers-reduced-motion the figure rests." },
 ];
 
 /** The public theme: six custom properties, set on the figure or on anything above it. */
