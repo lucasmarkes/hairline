@@ -3,7 +3,8 @@ import { describe, expect, it, vi } from "vitest";
 import { frames, host, observers, pending } from "./dom";
 import { basket, branches, cabinet, dish, drawer, elevator, exploded, format, hub, keyboard, laptop, lockers, loupe, padlock, patch, phone, phosphor, plot, plug, query, rail, rebuild, relay, riffle, router, settle, sieve, slow, stack, terminal, terrain, turntable, vault } from "../src/index";
 import { css } from "../src/core/styles";
-import { create } from "../src/mount";
+import { create, type HairlineOptions } from "../src/mount";
+import { pointer } from "../src/core/stage";
 
 const ALL = { riffle, terrain, exploded, phosphor, slow, turntable, keyboard, elevator, phone, laptop, terminal, cabinet, branches, vault, lockers, padlock, patch, dish, router, loupe, sieve, rail, plug, query, drawer, basket, plot, hub, relay, settle, format, rebuild, stack };
 const key = (el: Element, k: string) => el.dispatchEvent(new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true }));
@@ -685,11 +686,88 @@ describe("play", () => {
     f.destroy();
   });
 
-  it("plays only for true", () => {
+  /* a figure whose engine counts the laps: the ghost leaves the stage once at the end of each */
+  const counted = (play: HairlineOptions["play"]) => {
+    const el = host(), laps = { n: 0 };
+    const f = create({
+      id: "terrain", label: "x", rest: "rest", tour: [[200, 100], null],
+      engine: ({ stage }) => ({ set() {}, destroy: pointer(stage, { move() {}, leave: (e) => { if (e.pointerType === "ghost") laps.n++; } }) }),
+    }, el, { play });
+    return { el, f, laps };
+  };
+
+  it("plays only for true and for a whole number of laps above zero", () => {
+    for (const play of [0, -1, 1.5, NaN, Infinity, "2", "true", {}]) {
+      const { f, laps } = counted(play as HairlineOptions["play"]);
+      frames(800);
+      expect(laps.n).toBe(0);
+      expect(pending()).toBe(0);
+      f.destroy();
+    }
+  });
+
+  it("a number of laps walks that many, then rests and lets the loop sleep", () => {
+    for (const n of [1, 2, 3]) {
+      const { f, laps } = counted(n);
+      let i = 0;
+      while (pending() && i++ < 5000) frames();
+      expect(laps.n).toBe(n);
+      /* asleep, and it stays asleep: the tour is gone, not waiting */
+      frames(2000);
+      expect(laps.n).toBe(n);
+      expect(pending()).toBe(0);
+      f.destroy();
+    }
+  });
+
+  it("true walks lap after lap", () => {
+    const { f, laps } = counted(true);
+    frames(3000);
+    expect(laps.n).toBeGreaterThan(5);
+    expect(pending()).toBeGreaterThan(0);
+    f.destroy();
+  });
+
+  it("a lap a hand cuts short does not count", async () => {
+    const { el, f, laps } = counted(1);
+    frames(160);
+    expect(laps.n).toBe(0);
+    el.dispatchEvent(new PointerEvent("pointermove", { pointerType: "mouse", pointerId: 1, bubbles: true, clientX: 200, clientY: 160 }));
+    el.dispatchEvent(new PointerEvent("pointerleave", { pointerType: "mouse", pointerId: 1, bubbles: true }));
+    /* a mouse leaves on the next task, and the tour starts the lap again from its first stop */
+    await new Promise((r) => setTimeout(r, 0));
+    let i = 0;
+    while (pending() && i++ < 5000) frames();
+    expect(laps.n).toBe(1);
+    f.destroy();
+  });
+
+  it("a new number walks again; the same one, sent again, does not", () => {
+    const { f, laps } = counted(1);
+    let i = 0;
+    while (pending() && i++ < 5000) frames();
+    expect(laps.n).toBe(1);
+    f.update({ play: 1 });
+    frames(2000);
+    expect(laps.n).toBe(1);
+    f.update({ play: 2 });
+    i = 0;
+    while (pending() && i++ < 5000) frames();
+    expect(laps.n).toBe(3);
+    f.destroy();
+  });
+
+  it("a figure that has walked its laps speaks every caption in its live region again", () => {
     const el = host(), reads: string[] = [];
-    const f = terrain(el, { play: 1 as unknown as boolean, onRead: (t) => reads.push(t) });
-    frames(800);
-    expect(reads).toEqual(["rest"]);
+    const f = riffle(el, { play: 1, onRead: (t) => reads.push(t) });
+    const live = el.querySelector("[data-hairline-live]")!;
+    let i = 0;
+    while (pending() && i++ < 5000) frames();
+    expect(new Set(reads).size).toBeGreaterThan(2);
+    el.dispatchEvent(new PointerEvent("pointermove", { pointerType: "mouse", pointerId: 1, bubbles: true, clientX: 150, clientY: 120 }));
+    frames(30);
+    expect(reads.at(-1)).not.toBe("rest");
+    expect(live.textContent).toBe(reads.at(-1));
     f.destroy();
   });
 

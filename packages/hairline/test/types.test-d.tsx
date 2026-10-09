@@ -35,7 +35,11 @@ exploded(el, { theme: "sepia" });
 riffle();
 yes<Equal<keyof HairlineOptions, "intensity" | "theme" | "label" | "onRead" | "play">>();
 terrain(document.createElement("div"), { play: true });
+terrain(document.createElement("div"), { play: 2 });
 <Terrain play />;
+<Terrain play={2} />;
+// @ts-expect-error a number of laps, not a string
+terrain(el, { play: "2" });
 
 /* the handle */
 const f = riffle(el);

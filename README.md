@@ -99,7 +99,7 @@ Every figure takes the same five, all optional:
 | `theme` | `"auto" \| "light" \| "dark"` | `"auto"` | `"auto"` follows the page: an ancestor with class `dark` or `data-theme="dark"`, then the page's `color-scheme`. |
 | `label` | `string` | a description in English | The accessible name. In React, `aria-label` does the same. |
 | `onRead` | `(text: string) => void` | | The figure's caption, each time it changes: `"03"`, `"gap 28.0"`, `"rate 0.20×"`. |
-| `play` | `boolean` | `false` | Walks the figure through its answer on its own, in a loop, until the pointer or focus arrives; it resumes after they leave. |
+| `play` | `boolean \| number` | `false` | Walks the figure through its answer on its own until the pointer or focus arrives; it resumes after they leave. `true` walks it in a loop; a whole number walks that many laps, and then the figure rests. |
 
 In `update`, a key set to `undefined` goes back to its default, and a key left out stays as it is.
 

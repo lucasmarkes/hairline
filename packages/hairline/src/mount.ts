@@ -22,11 +22,12 @@ export type HairlineOptions = {
   /** The figure's caption, each time it changes. Called once at mount with the rest caption. */
   onRead?: (text: string) => void;
   /**
-   * Walks the figure through its answer on its own, in a loop, until the
-   * pointer or focus arrives; it resumes after they leave. Only `true` plays.
-   * Under prefers-reduced-motion the figure rests. Default false.
+   * Walks the figure through its answer on its own until the pointer or focus
+   * arrives; it resumes after they leave. `true` walks it in a loop; a whole
+   * number above zero walks that many laps, and then the figure rests. Nothing
+   * else plays. Under prefers-reduced-motion the figure rests. Default false.
    */
-  play?: boolean;
+  play?: boolean | number;
 };
 
 export type Figure = {
@@ -117,9 +118,21 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
     },
   };
 
+  /* true walks lap after lap; a whole number above zero walks that many. A lap ends where the ghost leaves
+     the stage, and one a hand cuts short does not count: the tour starts that lap again when the hand leaves */
+  const play = (): TourHandle | null => {
+    const n = opts.play, stops = spec.tour ?? LAP;
+    let lap = 0;
+    /* only the running tour ticks, so the one that walks its last lap is the one playing */
+    return n === true || Number.isInteger(n) && (n as number) > 0
+      ? tour(el, stops, (i) => { if (stops[i] === null && ++lap === n) { playing!.stop(); playing = null; } })
+      : null;
+  };
+
   let value = parameter(spec.id, opts.intensity);
+  let played = opts.play;
   /* the tour registers before the engine, so its board ticks first in a frame: the ghost moves, then the engine draws the answer */
-  playing = opts.play === true ? tour(el, spec.tour ?? LAP) : null;
+  playing = play();
   let engine: FigureHandle;
   try { engine = spec.engine({ stage: el, svg, read }, value); } catch (err) { playing?.stop(); throw err; }
   if (text === null) read.textContent = spec.rest;
@@ -150,11 +163,8 @@ export function create(spec: Spec, el: HTMLElement, options?: HairlineOptions): 
       }
       const v = parameter(spec.id, opts.intensity);
       if (v !== value) { value = v; engine.set(v); }
-      const play = opts.play === true;
-      if (play !== !!playing) {
-        playing?.stop();
-        playing = play ? tour(el, spec.tour ?? LAP) : null;
-      }
+      /* a new play value starts the walk again; the same one, as a framework re-render sends it, does not */
+      if (opts.play !== played) { played = opts.play; playing?.stop(); playing = play(); }
       dress();
     },
     destroy,

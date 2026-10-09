@@ -70,7 +70,7 @@ describe("the signatures", () => {
   theme?: "auto" | "light" | "dark"
   label?: string
   onRead?: (text: string) => void
-  play?: boolean
+  play?: boolean | number
   {...divProps}
 />
 `);
