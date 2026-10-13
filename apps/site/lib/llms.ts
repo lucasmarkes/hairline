@@ -66,7 +66,7 @@ export function llms(base: string): string {
     "", "## Make your own", "",
     SUMMARY,
     "", fence("sh", INSTALL),
-    "", `Then type \`${COMMAND} <idea>\` in the agent. Seven ideas, each with the page the skill wrote for it, and the change asked for next where there was one:`,
+    "", `Then type \`${COMMAND} <idea>\` in the agent. Eleven ideas, each with the page the skill wrote for it, and the change asked for next where there was one:`,
     "", EXAMPLES.map((e) => `- \`${COMMAND} ${e.idea}\`${e.followUp ? `, then "${e.followUp}"` : ""}: ${base}/skill/${e.file}`).join("\n"),
     "", NOTICE,
     "", `More: ${base}/skill`,

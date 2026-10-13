@@ -6,6 +6,10 @@ const IDEAS = [
   "a rate limiter",
   "git branches",
   "weather over a city",
+  "a drafting compass standing on a sheet of paper on a drawing board: the needle leg stays on its prick mark, the pencil leg opens to the pointer's distance and the whole compass turns to its bearing, with a dashed circle on the sheet for the line it would draw. Name it compass.",
+  "an abacus lying flat, five rods and seven beads on each: the pointer picks the rod under it and splits its beads, the ones left of it sliding to the left end and the rest to the right, each a little later the farther it sits from the pointer. Name it abacus.",
+  "a video camera on a tripod that turns to watch the pointer: it pans to where the pointer stands on the ground, tilts down when it comes close and up when it goes far, and the lens ring is the one bright mark. Name it camera.",
+  "a pot on a potter's wheel, the pointer the hand that shapes it: fourteen rings of clay trace a vase, and the rings at the pointer's height are pressed in, less with distance. Name it wheel.",
   "an empty state for \"No deployments yet\", from Vercel's mark: the triangle as an upright slab hovering over a pad with its slot marked dim; the nearer the pointer, the lower it settles, until it seats. Name it vercel.",
   "an empty state for \"No agents connected\", from Mastra's mark: the spheres of the M joined by necks on a board, the lone sphere standing apart; the pointer draws it toward the others, a neck forms, stretches and lets go. Name it mastra.",
   "an empty state for \"No pages inside\", from Notion's mark: the cube as a box with a lid, the N a relief on its front face; the pointer's height opens the lid on a spring, and the box is empty. Name it notion.",
@@ -46,7 +50,7 @@ const fit = (frame: FrameLocator) => frame.locator("main").evaluate((main) => ({
   band: window.innerHeight - main.getBoundingClientRect().bottom - 24,
 }));
 
-test("/skill opens with the install command, seven prompts and seven live figures, and a clean console", async ({ page }) => {
+test("/skill opens with the install command, eleven prompts and eleven live figures, and a clean console", async ({ page }) => {
   const noise = watch(page);
   await page.goto("/skill");
   await expect(page).toHaveTitle("Make your own figure · hairline");
@@ -257,6 +261,10 @@ const FOLLOW_UPS: Record<string, string | undefined> = {
   clearance: undefined,
   sidings: "The rails almost disappear and the trains read as loose blocks. Make it read as a railway at a glance.",
   storm: "The cloud looks like a stack of cylinders. Make it read as a cloud at a glance.",
+  compass: undefined,
+  abacus: undefined,
+  camera: undefined,
+  wheel: undefined,
   vercel: undefined,
   mastra: undefined,
   notion: undefined,

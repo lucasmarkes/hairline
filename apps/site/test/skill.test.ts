@@ -13,18 +13,26 @@ import { COMMAND, EXAMPLES, INSTALL, declared, examples } from "@/lib/skill";
 const PUBLIC = fileURLToPath(new URL("../public/skill/", import.meta.url));
 const VALIDATE = fileURLToPath(new URL("../../../skills/hairline-create/validate.mjs", import.meta.url));
 
-/** The three marks, each the whole line typed after the command. */
+/** The four studio figures and the three marks, each the whole line typed after the command. */
+const COMPASS = "a drafting compass standing on a sheet of paper on a drawing board: the needle leg stays on its prick mark, the pencil leg opens to the pointer's distance and the whole compass turns to its bearing, with a dashed circle on the sheet for the line it would draw. Name it compass.";
+const ABACUS = "an abacus lying flat, five rods and seven beads on each: the pointer picks the rod under it and splits its beads, the ones left of it sliding to the left end and the rest to the right, each a little later the farther it sits from the pointer. Name it abacus.";
+const CAMERA = "a video camera on a tripod that turns to watch the pointer: it pans to where the pointer stands on the ground, tilts down when it comes close and up when it goes far, and the lens ring is the one bright mark. Name it camera.";
+const WHEEL = "a pot on a potter's wheel, the pointer the hand that shapes it: fourteen rings of clay trace a vase, and the rings at the pointer's height are pressed in, less with distance. Name it wheel.";
 const VERCEL = "an empty state for \"No deployments yet\", from Vercel's mark: the triangle as an upright slab hovering over a pad with its slot marked dim; the nearer the pointer, the lower it settles, until it seats. Name it vercel.";
 const MASTRA = "an empty state for \"No agents connected\", from Mastra's mark: the spheres of the M joined by necks on a board, the lone sphere standing apart; the pointer draws it toward the others, a neck forms, stretches and lets go. Name it mastra.";
 const NOTION = "an empty state for \"No pages inside\", from Notion's mark: the cube as a box with a lid, the N a relief on its front face; the pointer's height opens the lid on a spring, and the box is empty. Name it notion.";
 
 describe("the skill's examples", () => {
-  it("are the seven ideas, in page order", () => {
+  it("are the eleven ideas, in page order", () => {
     expect(EXAMPLES.map((e) => e.idea)).toEqual([
       "a sales funnel",
       "a rate limiter",
       "git branches",
       "weather over a city",
+      COMPASS,
+      ABACUS,
+      CAMERA,
+      WHEEL,
       VERCEL,
       MASTRA,
       NOTION,
@@ -61,6 +69,10 @@ describe("the skill's examples", () => {
       "a rate limiter": undefined,
       "git branches": "The rails almost disappear and the trains read as loose blocks. Make it read as a railway at a glance.",
       "weather over a city": "The cloud looks like a stack of cylinders. Make it read as a cloud at a glance.",
+      [COMPASS]: undefined,
+      [ABACUS]: undefined,
+      [CAMERA]: undefined,
+      [WHEEL]: undefined,
       [VERCEL]: undefined,
       [MASTRA]: undefined,
       [NOTION]: undefined,

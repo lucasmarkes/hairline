@@ -90,7 +90,7 @@ export default function Skill() {
         </Section>
 
         <Section id="examples" title="What it draws">
-          <p className="doc-p">Seven ideas, seven files. The last three start from a company&rsquo;s mark. Each one opens from disk with no dependencies. Move the pointer over one.</p>
+          <p className="doc-p">Eleven ideas, eleven files. The middle four were drawn for a studio&rsquo;s site, one for each of its disciplines; the last three start from a company&rsquo;s mark. Each one opens from disk with no dependencies. Move the pointer over one.</p>
           {shown.map((e) => (
             <article key={e.file} className="card ex" data-example={e.name} aria-label={e.prompt}>
               <div className="ex-h">
