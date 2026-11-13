@@ -292,7 +292,13 @@ footer a::after { content: ""; position: absolute; inset: -12px -8px; }
 /* The hero's drawing, drawn by components/assembly.tsx: a floor of rules and dots, a window of three plates. The box is
    sized before the drawing mounts, so nothing moves the page. Its greys lean cool, as the figures' do. */
 .hero-art { width: 100%; margin-top: 14px; }
-.assembly { width: 100%; max-width: 760px; aspect-ratio: 760 / 388; margin: 0 auto; }.assembly svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.assembly { width: 100%; max-width: 760px; aspect-ratio: 760 / 388; margin: 0 auto; }
+/* On a phone the box would shrink the window to a third of the column, most of it floor: the drawing grows past the
+   column instead, the art spans the screen and clips there, and the floor's fade meets the screen's edges. */
+@media (max-width: 640px) {
+  .hero-art { width: 100vw; overflow-x: clip; }
+  .assembly { width: 175%; margin-left: 50%; translate: -50% 0; }
+}.assembly svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .assembly path { fill: none; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 /* a stroke drawn in is a path of length 1 with a dash as long, pushed back by what is not drawn yet */
 .assembly .rule { stroke: #ebebeb; stroke-dasharray: 1 1; }
