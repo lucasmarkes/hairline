@@ -1,1 +1,11 @@
+# Shown as the "Sponsor" button on the repository. The tiers, and what each one gets on the
+# site and in the README, are listed at https://hairline.lucasmarkes.com/#sponsors
 github: lucasmarkes
+custom:
+  - https://hairline.lucasmarkes.com/#sponsors
+
+# Uncomment any other platform once an account exists there:
+# open_collective: hairline
+# polar: lucasmarkes
+# buy_me_a_coffee: lucasmarkes
+# ko_fi: lucasmarkes

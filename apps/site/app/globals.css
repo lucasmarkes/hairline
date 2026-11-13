@@ -293,7 +293,12 @@ footer a::after { content: ""; position: absolute; inset: -12px -8px; }
    sized before the drawing mounts, so nothing moves the page. Its greys lean cool, as the figures' do. */
 .hero-art { width: 100%; margin-top: 14px; }
 .assembly { width: 100%; max-width: 760px; aspect-ratio: 760 / 388; margin: 0 auto; }
-.assembly svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* On a phone the box would shrink the window to a third of the column, most of it floor: the drawing grows past the
+   column instead, the art spans the screen and clips there, and the floor's fade meets the screen's edges. */
+@media (max-width: 640px) {
+  .hero-art { width: 100vw; overflow-x: clip; }
+  .assembly { width: 175%; margin-left: 50%; translate: -50% 0; }
+}.assembly svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .assembly path { fill: none; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 /* a stroke drawn in is a path of length 1 with a dash as long, pushed back by what is not drawn yet */
 .assembly .rule { stroke: #ebebeb; stroke-dasharray: 1 1; }
@@ -534,3 +539,52 @@ footer a::after { content: ""; position: absolute; inset: -12px -8px; }
   .drawer { transform: none; opacity: 0; transition: opacity 150ms ease, visibility 0s 150ms; }
   .drawer[data-open] { opacity: 1; transition: opacity 150ms ease, visibility 0s; }
 }
+
+/* The hero's sponsors: one line under the skill link. Every item is a 24px box with its content centred, so the words,
+   the logos and the open place share one centre line; the words in the skill link's own voice. */
+.sp-line { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 16px; margin-top: 16px; }
+.sp-line > * { display: inline-flex; align-items: center; height: 24px; line-height: 1; }
+.sp-line-by { font-size: 13px; color: var(--color-faint); }
+.sp-line-mark { font-size: 13px; font-weight: 600; letter-spacing: -0.02em; color: #8a8a8a; transition: color 160ms ease, opacity 160ms ease; }
+/* a logo in the line: 16px tall, in grey until the pointer is on it */
+.sp-line-mark img { display: block; height: 16px; width: auto; filter: grayscale(1); opacity: 0.6; transition: filter 160ms ease, opacity 160ms ease; }
+.sp-line-open { padding: 0 8px; border-radius: 6px; border: 1px dashed #d4d4d4; font-size: 12px; color: var(--color-faint); transition: color 160ms ease, border-color 160ms ease; }
+@media (hover: hover) {
+  .sp-line-mark:hover { color: var(--color-ink); }
+  .sp-line-mark:hover img { filter: none; opacity: 1; }
+  .sp-line-open:hover { color: var(--color-ink); border-color: var(--color-ink); }
+}
+
+/* The home's sponsors, under the hero: a label and a heading as the column pages open, the sponsors' logos and the
+   supporters' names once there are some, then the tiers on cards. The featured tier's card is ringed in ink. */
+.sp { display: grid; grid-template-columns: minmax(0, 1fr); justify-items: center; margin-top: clamp(72px, 12vh, 128px); padding-top: 56px; border-top: 1px solid var(--color-line); text-align: center; scroll-margin-top: calc(var(--topbar) + 24px); }
+.sp-h { margin-top: 10px; font-size: clamp(20px, 3vw, 24px); font-weight: 500; line-height: 1.2; letter-spacing: -0.02em; text-wrap: balance; }
+/* the home keeps to one family: the serif is the headline's one word and mono is code, so the label is set in the sans */
+.sp-label { font-size: 12.5px; font-weight: 500; color: var(--color-faint); }
+.sp-lede { margin-top: 10px; max-width: 46ch; font-size: 14px; line-height: 1.6; color: var(--color-muted); text-wrap: pretty; }
+/* the sponsors' logos in a grid of hairline cells: each cell draws its right and bottom rule outward, and the grid's
+   border and clip finish the edges, so a short last row ends in white rather than in a gap */
+.sp-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(140px, 100%), 1fr)); width: 100%; max-width: 640px; margin-top: 32px; border: 1px solid var(--color-line); border-radius: 12px; overflow: hidden; background: #fff; }
+.sp-cell { display: grid; place-items: center; height: 72px; padding: 0 12px; box-shadow: 1px 0 0 var(--color-line), 0 1px 0 var(--color-line); font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: #8a8a8a; transition: color 160ms ease; }
+.sp-cell img { display: block; max-width: 100%; height: 22px; width: auto; filter: grayscale(1); opacity: 0.55; transition: filter 160ms ease, opacity 160ms ease; }
+.sp-cell-open { font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--color-faint); }
+@media (hover: hover) { .sp-cell:hover { color: var(--color-ink); } .sp-cell:hover img { filter: none; opacity: 1; } }
+.sp-names { margin-top: 16px; max-width: 60ch; font-size: 13px; line-height: 1.6; color: var(--color-muted); text-wrap: pretty; }
+.sp-names a { color: var(--color-ink); text-decoration: underline; text-decoration-color: var(--color-faint); text-underline-offset: 4px; }
+
+.sp-tiers { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: 12px; width: 100%; max-width: 760px; margin-top: 36px; text-align: left; }
+.sp-tier { display: flex; flex-direction: column; padding: 16px; border-radius: 12px; background: #fff; box-shadow: var(--card); }
+.sp-tier[data-tier="featured"] { box-shadow: inset 0 0 0 1px var(--color-ink), var(--lift); }
+.sp-tier-h { display: flex; align-items: center; justify-content: space-between; gap: 8px; height: 20px; }
+.sp-tier-name { font-size: 13.5px; font-weight: 500; }
+.sp-tier-price { margin-top: 10px; font-size: 26px; font-weight: 500; line-height: 1; letter-spacing: -0.03em; font-variant-numeric: tabular-nums; }
+.sp-tier-price small { margin-left: 2px; font-size: 12px; font-weight: 400; letter-spacing: 0; color: var(--color-faint); }
+.sp-perks { display: grid; align-content: start; gap: 6px; flex: 1; margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--color-line); }
+.sp-perks li { position: relative; padding-left: 14px; font-size: 12.5px; line-height: 1.5; color: var(--color-muted); text-wrap: pretty; }
+.sp-perks li::before { content: ""; position: absolute; left: 1px; top: 0.72em; width: 6px; height: 1px; background: var(--color-faint); }
+/* the card's way in, at its foot whatever the perks' length: ink on the featured card, a quiet button on the rest */
+.sp-tier-cta { display: inline-flex; align-items: center; justify-content: center; gap: 7px; height: 34px; margin-top: 16px; border-radius: 9px; font-size: 13px; font-weight: 500; background: #fff; box-shadow: inset 0 0 0 1px #e5e5e5; transition: box-shadow 160ms ease, transform 160ms var(--ease-out); }
+@media (hover: hover) { .sp-tier-cta:hover { box-shadow: inset 0 0 0 1px var(--color-ink); } }
+.sp-tier[data-tier="featured"] .sp-tier-cta { background: var(--color-ink); color: #fff; box-shadow: var(--lift); }
+.sp-note { margin-top: 16px; font-size: 12.5px; color: var(--color-faint); }
+@media (prefers-reduced-motion: reduce) { .sp-line-mark, .sp-line-mark img, .sp-line-open, .sp-cell, .sp-cell img, .sp-tier-cta { transition: none; } }
