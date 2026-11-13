@@ -36,6 +36,7 @@ export function Footer() {
       </p>
       <nav className="flex gap-5 md:ml-auto">
         <a className="text-ink" href={LINKS.x}>X</a>
+        <a className="text-ink" href="/#sponsors">Sponsor</a>
         <a className="text-ink" href={LINKS.github}>GitHub</a>
         <a className="text-ink" href={LINKS.npm}>npm</a>
         <a className="text-ink" href="/llms.txt">llms.txt</a>

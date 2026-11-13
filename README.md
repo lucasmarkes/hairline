@@ -10,6 +10,10 @@ Thirty-three isometric line figures that answer the pointer. For React and for a
 
 Live, with a slider for `intensity`: **[hairline.lucasmarkes.com](https://hairline.lucasmarkes.com)**
 
+<!-- featured-sponsors:start -->
+<p align="center"><sub>Featured sponsors</sub><br><a href="https://github.com/sponsors/lucasmarkes">Your logo here</a></p>
+<!-- featured-sponsors:end -->
+
 ## Install
 
 ```sh
@@ -160,6 +164,23 @@ What both skills drew, each beside its prompt: [hairline.lucasmarkes.com/skills]
 - [How Hairline was made](https://hairline.lucasmarkes.com/inspo): the brief, the arguing, and every correction written down as a rule.
 - [The essay](https://lucasmarkes.com/lab/hairline): how the figures are drawn, and why with lines.
 - [CHANGELOG.md](https://github.com/lucasmarkes/hairline/blob/main/CHANGELOG.md) and [CONTRIBUTING.md](https://github.com/lucasmarkes/hairline/blob/main/CONTRIBUTING.md).
+
+## Sponsors
+
+Hairline is MIT and free. Sponsors pay for the next figures, and get a place on [the site](https://hairline.lucasmarkes.com/#sponsors) and here.
+
+| Tier | Per month | What you get |
+| --- | --- | --- |
+| **Featured** (2 places) | $250 | Logo in the site's hero, the first thing on it, and at the top of this README |
+| **Sponsor** | $100 | Logo on the site's home page, in the sponsors section, and in this section |
+| **Supporter** | $50 | Name and link on the site's home page, name in this section |
+| **Backer** | $25 | Name in this section, and our thanks every release |
+
+<!-- sponsors:start -->
+<p align="center"><a href="https://github.com/sponsors/lucasmarkes">Your logo here</a></p>
+<!-- sponsors:end -->
+
+[**Sponsor on GitHub →**](https://github.com/sponsors/lucasmarkes)
 
 ## License
 

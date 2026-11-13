@@ -3,6 +3,7 @@ import { Assembly } from "@/components/assembly";
 import { Footer, Topbar } from "@/components/chrome";
 import { Install } from "@/components/install";
 import { SkillLink } from "@/components/skill-link";
+import { SponsorLine, Sponsors } from "@/components/sponsors";
 import { COUNT } from "@/lib/figures";
 import { install } from "@/lib/snippets";
 import { cap } from "@/lib/words";
@@ -31,9 +32,13 @@ export default function Page() {
             <Install commands={install(SITE)} />
             <a className="btn btn-primary press" href="/docs">Get started</a>
           </div>
-          <p className="hero-skill" style={at(3)}><SkillLink /></p>
+          <div style={at(3)}>
+            <p className="hero-skill"><SkillLink /></p>
+            <SponsorLine />
+          </div>
           <div className="hero-art" style={at(4)}><Assembly /></div>
         </section>
+        <Sponsors />
       </main>
       <Footer />
     </>

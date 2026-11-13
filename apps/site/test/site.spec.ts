@@ -427,12 +427,12 @@ test("a command wider than the pill fades at the edge until it is scrolled to it
   await expect(line).toHaveCSS("mask-image", "none");
 });
 
-test("the footer links the author's site, then X, GitHub, npm and llms.txt", async ({ page }) => {
+test("the footer links the author's site, then X, Sponsor, GitHub, npm and llms.txt", async ({ page }) => {
   await page.goto("/");
   const footer = page.locator("footer");
   await expect(footer.getByRole("link", { name: "Lucas Marques" })).toHaveAttribute("href", "https://lucasmarkes.com");
   await expect(footer.getByRole("link", { name: "X", exact: true })).toHaveAttribute("href", "https://x.com/lucasmarkes__");
-  await expect(footer.getByRole("link")).toHaveText(["Lucas Marques", "X", "GitHub", "npm", "llms.txt"]);
+  await expect(footer.getByRole("link")).toHaveText(["Lucas Marques", "X", "Sponsor", "GitHub", "npm", "llms.txt"]);
 });
 
 test("a code block copies its code without the line numbers, and a signature has none", async ({ page, context }) => {
